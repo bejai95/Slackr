@@ -11,7 +11,9 @@
 
 ## 0. Change Log
 
-N/A
+* 8/10: Bonus marks section added (was accidentally removed); Couple of typo fixes
+* 9/10: Clarified which users can edit a channel's details (Only the channel's users can)
+* 10/10: Removed "insertAdjacentHTML" from 4.5., ReactJS from marking criteria and changed 75% -> 80% 2.8.
 
 ## 1. Before you start
 
@@ -31,16 +33,16 @@ You will _need_ to watch at least the following lectures before starting (it wil
  * Everything from assesssment 2
 
 You will _need_ to watch at least the following lectures to finish the assessment completely:
- * [Local storage](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/javascript-browser-localstorage)
- * [Events & Callbacks](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/javascript-async-callbacks)
- * [Promises](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/javascript-async-promises)
- * [AJAX Introduction](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/ajax-intro)
- * [Fetch](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/ajax-fetch)
- * [UI Fundamentals](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/ui-fundamentals)
- * [Perceivability](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/accessibility-perceivability)
- * [Operability](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/accessibility-operability)
- * [Understandability](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/accessibility-understandability)
- * [Robustness](https://cgi.cse.unsw.edu.au/~cs6080/23T1/content/lectures/accessibility-robustness)
+ * [Local storage](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/javascript-browser-localstorage)
+ * [Events & Callbacks](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/javascript-async-callbacks)
+ * [Promises](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/javascript-async-promises)
+ * [AJAX Introduction](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/ajax-intro)
+ * [Fetch](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/ajax-fetch)
+ * [UI Fundamentals](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/ui-fundamentals)
+ * [Perceivability](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/accessibility-perceivability)
+ * [Operability](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/accessibility-operability)
+ * [Understandability](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/accessibility-understandability)
+ * [Robustness](https://cgi.cse.unsw.edu.au/~cs6080/23T3/content/lectures/accessibility-robustness)
 
 ## 2. The Task
 
@@ -96,7 +98,7 @@ Milestone 2 focuses on creating **channels**, and viewing the basic channel scre
 #### 2.2.3 Viewing and editing channel details
  * When viewing a single channel screen, certain information should be accessible/visible within 0-1 clicks.
  * This information includes the name of the channel, description, public/private setting, creation timestamp (as a time/date not as an ISO string, flexible to whatever you think is user-friendly), and name of the creator of the channel.
- * Users should be able to edit the channel's name and description in some way.
+ * Users should be able to edit the channel's name and description in some way. Channel details can only be edited by users who are in the channel.
  * If the user is not a member of the channel, they do not need to see the channel details, but should be given a way to join the channel.
  * If the user is a member of the channel, there should be an option to leave the channel.
 
@@ -197,6 +199,16 @@ Milestone 7 focuses on some even harder components that are designed to start to
 	* `/#profile={userId}` to view the profile of the user with the particular userId
 
 _No course assistance will be provided for this component, you should do your own research as to how to implement this._
+
+### 2.8. Bonus Marks (5%)
+
+An extra 5% of the assignment can be attained via bonus marks, meaning a maximum mark of 105/100. Any bonus marks that extend your ass2 mark above 100% will bleed into other assignment marks, but cannot contribute outside of the 80% of the course that is allocated for assignment marks.
+
+Your bonus feature(s) can be anything. You just have to think of something that could make your web app stand out in some minor or major way. Simple examples would include just making sure that your user interface and user experience stands out amongst other students, maybe through some user testing.
+
+You could also add extra features, such as some additional frontend form validations - the possibilities are limitless.
+
+If you do implement a bonus feature, describe the feature and its details in `bonus.md` in the root directory of this repository.
 
 ## 3. Getting started
 
@@ -327,16 +339,16 @@ You should ensure that your programs have been tested on one of the following tw
 
 ### 4.5. Static HTML, innerHTML, DOM manipulation
 
-In this assignment, you are:
+In this assignment, you will:
  * Add static HTML/CSS to the stub website provided (i.e. you can put raw HTML/CSS as if it's a static page, even if you then later manipulate it with JavaScript).
  * Build HTML elements and add CSS properties to the DOM via JavaScript.
- * Use insertAdjacentHTML and innerText propertys/functions
+ * Use innerText properties/functions.
 
 ### 4.6. Prohibited Usages
 
 * You are not allowed to have more than 1 HTML file in your repo.
 * You are strictly **not** allowed to use the `async` and `await` syntax in this assignment. You must use Javascript Promises. The use of any `async` or `await` will result in a 50% penalty of your mark.
-* You are prohibited from using any string-to-DOM parser (e.g. DOMParser, or the innerHTML property, or anything similar). The use of any of this will result in a 50% penalty of your mark. You can read more about this [https://www.dhairyashah.dev/posts/why-innerhtml-is-a-bad-idea-and-how-to-avoid-it/](here).
+* You are prohibited from using any string-to-DOM parser (e.g. DOMParser, or the innerHTML property, or anything similar). The use of any of this will result in a 50% penalty of your mark. You can read more about this [here](https://www.dhairyashah.dev/posts/why-innerhtml-is-a-bad-idea-and-how-to-avoid-it/).
 
 ## 5. Marking Criteria
 
@@ -373,7 +385,6 @@ Your assignment will be hand-marked by tutor(s) in the course according to the c
 		<td>
 			<ul>
         <li>Your code is clean, well commented, with well-named variables, and well laid out as highlighted in the course style guide.</li>
-        <li>Code follows common ReactJS patterns that have been discussed in lectures and as highlighted in the course style guide.</li>
       </ul>
 		</td>
 	</tr>
@@ -388,6 +399,8 @@ Your assignment will be hand-marked by tutor(s) in the course according to the c
 		</td>
 	</tr>
 </table>
+
+Bonus marks are applicable beyond this mark. Please see section `2.8`.
 
 ## 6. Originality of Work
 
