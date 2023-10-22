@@ -57,6 +57,30 @@ document.getElementById('login-submit').addEventListener('click', () => {
     })
 })
 
+document.getElementById('register-submit').addEventListener('click', () => {
+    const name = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-password-confirm').value;
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match");
+    } else {
+        apiCall('auth/register', 'POST', '', false, true, {
+            "email": email,
+            "password": password,
+            "name": name
+        })
+        .then((data) => {
+            localStorage.setItem('token', data.token);
+            showScreen('dashboard') 
+        })
+        .catch((error) => {
+            alert('ERROR: ' + error);
+        })
+    }
+})
+
 document.getElementById('logout-button').addEventListener('click', () => {
     apiCall('auth/logout', 'POST', '', true, false, {})
     .then(() => {
