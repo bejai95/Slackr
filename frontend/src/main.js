@@ -9,15 +9,15 @@ const showScreen = (screenName) => {
 	document.getElementById(`${screenName}-screen`).style.display = 'block';
 }
 
-const apiCall = (path, body, authorizedBool) => {
+const apiCall = (path, method, paramString, authorizedBool, bodyBool, body) => {
     return new Promise((resolve, reject) => {
-        fetch('http://localhost:' + BACKEND_PORT + `/${path}`, {
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/json',
-            'Authorization': authorizedBool ? `Bearer ${token}` : undefined
-        },
-        body: JSON.stringify(body)
+        fetch('http://localhost:' + BACKEND_PORT + `/${path + paramString}`, {
+            method: method,
+            body: bodyBool ? JSON.stringify(body) : undefined,
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': authorizedBool ? `Bearer ${localStorage.getItem('token')}` : undefined,
+            },
         })
         .then((response) => response.json())
         .then((data) => {
@@ -28,7 +28,7 @@ const apiCall = (path, body, authorizedBool) => {
             }
         })
         .catch((error) => {
-            reject('An unknown error occured!'); 
+            reject(error); 
         });
     });
 };
@@ -44,25 +44,29 @@ for (const backButton of document.getElementsByClassName('back-button')) {
 document.getElementById('login-submit').addEventListener('click', () => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-    
-    apiCall('auth/login', {
+    apiCall('auth/login', 'POST', '', false, true, {
         "email": email,
         "password": password,
     })
     .then((data) => {
         localStorage.setItem('token', data.token);
-        showScreen('dashboard')
-        
+        showScreen('dashboard') 
     })
     .catch((error) => {
-        console.log('ERROR: ' + error)
+        alert('ERROR: ' + error);
     })
 })
 
 document.getElementById('logout-button').addEventListener('click', () => {
-    // Still do api stuff
-    localStorage.removeItem('token'); 
-    showScreen('landing')
+    apiCall('auth/logout', 'POST', '', true, false, {})
+    .then(() => {
+        localStorage.removeItem('token'); 
+        showScreen('landing')
+    })
+    .catch((error) => {
+        alert(error);
+    })
+    
 })
 
 if (localStorage.getItem('token') === null) {
