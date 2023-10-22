@@ -2,27 +2,60 @@
 <html>
 
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Slackr</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- You can add your styles and scripts here -->
-  <link rel="stylesheet" type="text/css" media="screen" href="styles/provided.css" />
-  <script type="module" src="src/helpers.js"></script>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Slackr</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- You can add your styles and scripts here -->
+    <link rel="stylesheet" type="text/css" media="screen" href="styles/provided.css" />
+    <script type="module" src="src/helpers.js"></script>
 </head>
 
 <body>
-  <!-- This is an example app structure, you can modify this as much as you choose -->
-  <header class="banner">
-    <h1>Slackr</h1>
-  </header>
-  <main role="main">
-    <!-- app goes here -->
-  </main>
-  <footer>
-    <p>&copy; Slackr</p>
-  </footer>
-  <script type="module" src="src/main.js"></script>
-</body>
+    <header class="banner">
+        <h1>Slackr</h1>
+    </header>
+    <main role="main">
+        <section id="landing-screen" class="screen">
+			<button id="login-button">Log in</button>
+			<button id="register-button">Register</button>
+		</section>
+		<section id="login-screen" class="screen">
+			<button class="back-button">Back</button>
+			<h1>Log in</h1>
+			<form>
+				<label for="login-email">Email: </label>
+				<input type="email" id="login-email"> <br>
+				<label for="login-password">Password: </label>
+				<input type="password" id="login-password"> <br>
+				<button type="button" id="login-submit">Submit</button>
+			</form>
+		</section>
+		<section id="register-screen" class="screen">
+			<button class="back-button">Back</button>
+			<h1>Register</h1>
+			<form>
+				<label for="register-name">Name: </label>
+				<input type="text" id="register-name"> <br>
+				<label for="register-email">Email: </label>
+				<input type="email" id="register-email"> <br>
+				<label for="register-password">Password: </label>
+				<input type="password" id="register-password"> <br>
+				<label for="register-password-confirm">Confrim password: </label>
+				<input type="password" id="register-password-confirm"> <br>
+				<button type="button" id="register-submit">Submit</button>
+			</form>
+		</section>
+		<section id="dashboard-screen" class="screen">
+			<h1>Dashboard</h1>
+			<button>Log out</button>
+		</section>
+    
+    </main>
+    <footer>
+        <p>&copy; Slackr</p>
+    </footer>
+    <script type="module" src="src/main.js"></script>
+    </body>
 
 </html>
