@@ -7,6 +7,9 @@ const showScreen = (screenName) => {
         screen.style.display = 'none';
 	}
 	document.getElementById(`${screenName}-screen`).style.display = 'block';
+    if (screenName === 'dashboard') {
+        loadDashboardInitial();
+    }
 }
 
 const apiCall = (path, method, paramString, authorizedBool, bodyBool, body) => {
@@ -33,6 +36,25 @@ const apiCall = (path, method, paramString, authorizedBool, bodyBool, body) => {
     });
 };
 
+const loadDashboardInitial = () => {
+    apiCall('channel', 'GET', '', true, false, {})
+    .then(data => {
+        for (const channel of data.channels) {
+            const channelButton = document.getElementById('channel-button-template').cloneNode(true);
+            channelButton.removeAttribute('id');
+            channelButton.querySelector('.content').innerText = channel.name;
+            document.getElementById('channel-buttons-list').appendChild(channelButton);
+        }
+    })
+    .catch((error) => {
+        if (error === "Invalid token") {
+            localStorage.removeItem('token');
+            showScreen('landing');
+        } else {
+            alert('ERROR: ' + error);
+        }
+    })
+}
 
 document.getElementById('login-button').addEventListener('click', () => showScreen('login'));
 document.getElementById('register-button').addEventListener('click', () => showScreen('register'));
@@ -90,8 +112,38 @@ document.getElementById('logout-button').addEventListener('click', () => {
     .catch((error) => {
         alert(error);
     })
-    
 })
+
+document.getElementById('create-channel-button').addEventListener('click', () => {
+    showScreen('create-channel-form');
+})
+
+document.getElementById('create-channel-cancel').addEventListener('click', () => {
+    showScreen('dashboard');
+})
+
+document.getElementById('create-channel-submit').addEventListener('click', () => {
+    const name = document.getElementById('create-channel-name').value;
+    const description = document.getElementById('create-channel-description').value;
+    const privateBool = document.getElementById('create-channel-type').value;
+
+    if (name === '') {
+        alert("Please enter a name for your channel")
+    } else {
+        apiCall('channel', 'POST', '', true, true, {
+            "name": name,
+            "private": privateBool,
+            "description": description ? description: 'No description given',
+        })
+        .then((data) => {
+            showScreen('dashboard');
+        })
+        .catch((error) => {
+            alert(error);
+        })
+    }
+})
+
 
 if (localStorage.getItem('token') === null) {
     showScreen('landing');

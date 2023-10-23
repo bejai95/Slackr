@@ -7,7 +7,7 @@
     <title>Slackr</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- You can add your styles and scripts here -->
-    <link rel="stylesheet" type="text/css" media="screen" href="styles/provided.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="styles/styles.css" />
     <script type="module" src="src/helpers.js"></script>
 </head>
 
@@ -52,8 +52,35 @@
 		
 		<section id="dashboard-screen" class="screen">
 			<h1>Dashboard</h1>
-			<button id="logout-button">Log out</button>
-		</section>
+            <div>List of channels:</div>
+            <div id="channel-buttons-list">
+                <div id="channel-button-template">
+                    <button class="content">Template</button>
+                </div>
+            </div>
+            <br>
+			<button id="create-channel-button">Create new channel</button>
+            <button id="logout-button">Log out</button>
+        </section>
+            
+        <section id="create-channel-form-screen" class="screen">
+            <button id="create-channel-cancel">Cancel</button>
+            <h1>Create a new channel</h1>
+            <form>
+                <label for="create-channel-name">Channel name: </label>
+                <input type="text" id="create-channel-name"> <br>
+                <label for="create-channel-description">Channel description (optional): </label>
+                <input type="text" id="create-channel-description"> <br>
+                <label for="create-channel-type">Channel type: </label>
+                <select id="create-channel-type">
+                    <option value="false" selected>Public</option>
+                    <option value="true">Private</option>
+                </select> <br>
+                <button type="button" id="create-channel-submit">Submit</button>
+            </form>
+        </section>
+            
+		
     
     </main>
     <footer>

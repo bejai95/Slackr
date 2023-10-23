@@ -7,3 +7,7 @@ html, body {
     height: 100%;
     font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
+
+#channel-button-template {
+    display: none;
+}
