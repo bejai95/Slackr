@@ -64,29 +64,38 @@
                     <button id="create-channel-button">Create new channel</button>
                 </div>
                 <div id="main-content">
-                    <h2>Messages</h2>
+                    <div id="welcome-screen" class="screen-dashboard">
+                        <h1>Welcome</h1>
+                        <p>Please choose a channel using the navbar on the left</p>
+                    </div>
+                    <div id="channel-screen" class="screen-dashboard">
+                        <h3 id="channel-title">Channel title</h3>
+                        <p>Channel description: <span id="channel-description"></span></p>
+                        <p>Channel visibility: <span id="channel-visibility"></span></p>
+                        <p>Creation timestamp: <span id="creation-timestamp"></span></p>
+                    </div>
+                    <div id="create-channel-form-screen" class="screen-dashboard">
+                        <h1>Create a new channel</h1>
+                        <form>
+                            <label for="create-channel-name">Channel name: </label>
+                            <input type="text" id="create-channel-name"> <br>
+                            <label for="create-channel-description">Channel description (optional): </label>
+                            <input type="text" id="create-channel-description"> <br>
+                            <label for="create-channel-visibilty">Channel visibility: </label>
+                            <select id="create-channel-visibilty">
+                                <option value="public" selected>Public</option>
+                                <option value="private">Private</option>
+                            </select> <br>
+                            <button type="button" id="create-channel-submit">Submit</button>
+                        </form>
+                    </div>
                 </div>
             </div>
             <br>
             <button id="logout-button">Log out</button>
         </section>
             
-        <section id="create-channel-form-screen" class="screen-full">
-            <button id="create-channel-cancel">Cancel</button>
-            <h1>Create a new channel</h1>
-            <form>
-                <label for="create-channel-name">Channel name: </label>
-                <input type="text" id="create-channel-name"> <br>
-                <label for="create-channel-description">Channel description (optional): </label>
-                <input type="text" id="create-channel-description"> <br>
-                <label for="create-channel-type">Channel type: </label>
-                <select id="create-channel-type">
-                    <option value="false" selected>Public</option>
-                    <option value="true">Private</option>
-                </select> <br>
-                <button type="button" id="create-channel-submit">Submit</button>
-            </form>
-        </section>
+        
             
 		
     

@@ -29,3 +29,10 @@ export function fileToDataUrl(file) {
     reader.readAsDataURL(file);
     return dataUrlPromise;
 }
+
+// Used help from https://stackoverflow.com/questions/3552461/how-do-i-format-a-date-in-javascript (top answer)
+export function formatTimestamp(isoString) {
+    const timestampAsDateObject = new Date(isoString);
+    const options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+    return timestampAsDateObject.toLocaleDateString("en-US", options);
+}
