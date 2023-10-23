@@ -2,8 +2,8 @@ import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
 
-const showScreen = (screenName) => {
-    for (const screen of document.getElementsByClassName('screen')) {
+const showScreenFull = (screenName) => {
+    for (const screen of document.getElementsByClassName('screen-full')) {
         screen.style.display = 'none';
 	}
 	document.getElementById(`${screenName}-screen`).style.display = 'block';
@@ -45,7 +45,7 @@ const loadDashboardInitial = () => {
         // Deal with invalid token
         if (error === "Invalid token") {
             localStorage.removeItem('token');
-            showScreen('landing');
+            showScreenFull('landing');
         
         } else {
             alert('ERROR: ' + error);
@@ -64,11 +64,11 @@ const createChannelButton = (channelName, channelId) => {
     })
 }
 
-document.getElementById('login-button').addEventListener('click', () => showScreen('login'));
-document.getElementById('register-button').addEventListener('click', () => showScreen('register'));
+document.getElementById('login-button').addEventListener('click', () => showScreenFull('login'));
+document.getElementById('register-button').addEventListener('click', () => showScreenFull('register'));
 
 for (const backButton of document.getElementsByClassName('back-button')) {
-    backButton.addEventListener('click', () => showScreen('landing'));
+    backButton.addEventListener('click', () => showScreenFull('landing'));
 }
 
 document.getElementById('login-submit').addEventListener('click', () => {
@@ -80,7 +80,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
     })
     .then((data) => {
         localStorage.setItem('token', data.token);
-        showScreen('dashboard');
+        showScreenFull('dashboard');
         loadDashboardInitial();
     })
     .catch((error) => {
@@ -104,7 +104,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
         })
         .then((data) => {
             localStorage.setItem('token', data.token);
-            showScreen('dashboard');
+            showScreenFull('dashboard');
             loadDashboardInitial();
         })
         .catch((error) => {
@@ -124,7 +124,7 @@ document.getElementById('logout-button').addEventListener('click', () => {
         }
         
         localStorage.removeItem('token'); 
-        showScreen('landing');
+        showScreenFull('landing');
     })
     .catch((error) => {
         alert(error);
@@ -133,11 +133,11 @@ document.getElementById('logout-button').addEventListener('click', () => {
 })
 
 document.getElementById('create-channel-button').addEventListener('click', () => {
-    showScreen('create-channel-form');
+    showScreenFull('create-channel-form');
 })
 
 document.getElementById('create-channel-cancel').addEventListener('click', () => {
-    showScreen('dashboard');
+    showScreenFull('dashboard');
 })
 
 document.getElementById('create-channel-submit').addEventListener('click', () => {
@@ -155,7 +155,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
         })
         .then((data) => {
             createChannelButton(name, data.channelId);
-            showScreen('dashboard');
+            showScreenFull('dashboard');
         })
         .catch((error) => {
             alert(error);
@@ -165,8 +165,8 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
 
 
 if (localStorage.getItem('token') === null) {
-    showScreen('landing');
+    showScreenFull('landing');
 } else {
-    showScreen('dashboard');
+    showScreenFull('dashboard');
     loadDashboardInitial();
 }

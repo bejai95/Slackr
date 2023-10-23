@@ -24,3 +24,8 @@ html, body {
     background-color: #7c8c9c;
     flex: 3;
 }
+
+#dashboard-header {
+    text-align: center;
+}
+
