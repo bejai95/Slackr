@@ -11,3 +11,16 @@ html, body {
 #channel-button-template {
     display: none;
 }
+
+#flex-container {
+    display: flex;
+}
+
+#navbar {
+    flex: 1;
+}
+
+#main-content {
+    background-color: #7c8c9c;
+    flex: 3;
+}

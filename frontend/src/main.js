@@ -7,9 +7,6 @@ const showScreen = (screenName) => {
         screen.style.display = 'none';
 	}
 	document.getElementById(`${screenName}-screen`).style.display = 'block';
-    if (screenName === 'dashboard') {
-        loadDashboardInitial();
-    }
 }
 
 const apiCall = (path, method, paramString, authorizedBool, bodyBool, body) => {
@@ -40,19 +37,30 @@ const loadDashboardInitial = () => {
     apiCall('channel', 'GET', '', true, false, {})
     .then(data => {
         for (const channel of data.channels) {
-            const channelButton = document.getElementById('channel-button-template').cloneNode(true);
-            channelButton.removeAttribute('id');
-            channelButton.querySelector('.content').innerText = channel.name;
-            document.getElementById('channel-buttons-list').appendChild(channelButton);
+            // Check if user has access to the channel 
+            createChannelButton(channel.name, channel.id); 
         }
     })
     .catch((error) => {
+        // Deal with invalid token
         if (error === "Invalid token") {
             localStorage.removeItem('token');
             showScreen('landing');
+        
         } else {
             alert('ERROR: ' + error);
         }
+    })
+}
+
+const createChannelButton = (channelName, channelId) => {
+    const newChannelButton = document.getElementById('channel-button-template').cloneNode(true);
+    newChannelButton.removeAttribute('id');
+    newChannelButton.querySelector('.content').innerText = channelName;
+    newChannelButton.setAttribute('channelId', channelId);
+    document.getElementById('channel-buttons-list').appendChild(newChannelButton);
+    newChannelButton.addEventListener('click', () => {
+        console.log("Channel button pressed");
     })
 }
 
@@ -72,7 +80,8 @@ document.getElementById('login-submit').addEventListener('click', () => {
     })
     .then((data) => {
         localStorage.setItem('token', data.token);
-        showScreen('dashboard') 
+        showScreen('dashboard');
+        loadDashboardInitial();
     })
     .catch((error) => {
         alert('ERROR: ' + error);
@@ -95,7 +104,8 @@ document.getElementById('register-submit').addEventListener('click', () => {
         })
         .then((data) => {
             localStorage.setItem('token', data.token);
-            showScreen('dashboard') 
+            showScreen('dashboard');
+            loadDashboardInitial();
         })
         .catch((error) => {
             alert('ERROR: ' + error);
@@ -106,12 +116,20 @@ document.getElementById('register-submit').addEventListener('click', () => {
 document.getElementById('logout-button').addEventListener('click', () => {
     apiCall('auth/logout', 'POST', '', true, false, {})
     .then(() => {
+        
+        // Get rid of the channel buttons
+        const container = document.getElementById('channel-buttons-list');
+        while(container.children.length > 1) {
+            container.removeChild(container.lastChild);
+        }
+        
         localStorage.removeItem('token'); 
-        showScreen('landing')
+        showScreen('landing');
     })
     .catch((error) => {
         alert(error);
     })
+    
 })
 
 document.getElementById('create-channel-button').addEventListener('click', () => {
@@ -128,7 +146,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
     const privateBool = document.getElementById('create-channel-type').value;
 
     if (name === '') {
-        alert("Please enter a name for your channel")
+        alert("Please enter a name for your channel");
     } else {
         apiCall('channel', 'POST', '', true, true, {
             "name": name,
@@ -136,6 +154,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
             "description": description ? description: 'No description given',
         })
         .then((data) => {
+            createChannelButton(name, data.channelId);
             showScreen('dashboard');
         })
         .catch((error) => {
@@ -149,4 +168,5 @@ if (localStorage.getItem('token') === null) {
     showScreen('landing');
 } else {
     showScreen('dashboard');
+    loadDashboardInitial();
 }
