@@ -16,11 +16,11 @@ const showScreenDashboard = (screenName) => {
 	document.getElementById(`${screenName}-screen`).style.display = 'block';
 }
 
-const apiCall = (path, method, authorizedBool, bodyBool, body) => {
+const apiCall = (path, method, authorizedBool, body) => {
     return new Promise((resolve, reject) => {
         fetch('http://localhost:' + BACKEND_PORT + '/' + path, {
             method: method,
-            body: bodyBool ? JSON.stringify(body) : undefined,
+            body: Object.keys(body).length !== 0 ? JSON.stringify(body) : undefined,
             headers: {
                 'Content-type': 'application/json',
                 'Authorization': authorizedBool ? `Bearer ${localStorage.getItem('token')}` : undefined,
@@ -41,7 +41,7 @@ const apiCall = (path, method, authorizedBool, bodyBool, body) => {
 };
 
 const loadDashboardInitial = () => {
-    apiCall('channel', 'GET', true, false, {})
+    apiCall('channel', 'GET', true, {})
     .then(data => {
         for (const channel of data.channels) {
             // TODO Check if user has access to the channel 
@@ -74,13 +74,22 @@ const createChannelButton = (channelName, channelId) => {
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     document.getElementById('channel-title').innerText = channelName;
-    apiCall(`channel/${channelId}`, 'GET', true, false, {})
+    apiCall(`channel/${channelId}`, 'GET', true, {})
     .then((data) => {
         document.getElementById('channel-description').innerText = data.description ? data.description : 'No description given';
         document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
-        document.getElementById('creation-timestamp').innerText = formatTimestamp(data.createdAt);
+        document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
 
-    }) // TODO catch block here
+        // Now need to get the name of the user who created the channel path, method, authorizedBool, body
+        apiCall(`user/${data.creator}`, 'GET', true, {})
+        .then ((dataNew) => {
+            document.getElementById('channel-creator').innerText = dataNew.name;
+        })
+
+    }) 
+    .catch((error) => {
+        alert('ERROR: ' + error);
+    })
 }
 
 document.getElementById('login-button').addEventListener('click', () => showScreenFull('login'));
@@ -93,7 +102,7 @@ for (const backButton of document.getElementsByClassName('back-button')) {
 document.getElementById('login-submit').addEventListener('click', () => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-    apiCall('auth/login', 'POST', false, true, {
+    apiCall('auth/login', 'POST', false, {
         "email": email,
         "password": password,
     })
@@ -116,7 +125,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
     if (password !== confirmPassword) {
         alert("Passwords do not match");
     } else {
-        apiCall('auth/register', 'POST', false, true, {
+        apiCall('auth/register', 'POST', false, {
             "email": email,
             "password": password,
             "name": name
@@ -133,7 +142,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
 })
 
 document.getElementById('logout-button').addEventListener('click', () => {
-    apiCall('auth/logout', 'POST', true, false, {})
+    apiCall('auth/logout', 'POST', true, {})
     .then(() => {
         
         // Get rid of the channel buttons
@@ -163,7 +172,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
     if (name === '') {
         alert("Please enter a name for your channel");
     } else {
-        apiCall('channel', 'POST', true, true, {
+        apiCall('channel', 'POST', true, {
             "name": name,
             "private": privateBool,
             "description": description,
