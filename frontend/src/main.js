@@ -40,7 +40,13 @@ const apiCall = (path, method, authorizedBool, body) => {
     });
 };
 
-const loadDashboardInitial = () => {
+const loadDashboard = () => {
+    // Get rid of previously existing channel buttons from DOM
+    const container = document.getElementById('channel-buttons-list');
+    while(container.children.length > 1) {
+        container.removeChild(container.lastChild);
+    }
+    
     apiCall('channel', 'GET', true, {})
     .then(data => {
         for (const channel of data.channels) {
@@ -137,7 +143,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
     .then((data) => {
         localStorage.setItem('token', data.token);
         showScreenFull('dashboard');
-        loadDashboardInitial();
+        loadDashboard();
     })
     .catch((error) => {
         alert('ERROR: ' + error);
@@ -161,7 +167,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
         .then((data) => {
             localStorage.setItem('token', data.token);
             showScreenFull('dashboard');
-            loadDashboardInitial();
+            loadDashboard();
         })
         .catch((error) => {
             alert('ERROR: ' + error);
@@ -172,13 +178,6 @@ document.getElementById('register-submit').addEventListener('click', () => {
 document.getElementById('logout-button').addEventListener('click', () => {
     apiCall('auth/logout', 'POST', true, {})
     .then(() => {
-        
-        // Get rid of the channel buttons
-        const container = document.getElementById('channel-buttons-list');
-        while(container.children.length > 1) {
-            container.removeChild(container.lastChild);
-        }
-        
         localStorage.removeItem('token'); 
         showScreenFull('landing');
     })
@@ -206,7 +205,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
             "description": description,
         })
         .then((data) => {
-            createChannelButton(name, data.channelId);
+            loadDashboard();
             loadChannel(name, data.channelId);
         })
         .catch((error) => {
@@ -220,5 +219,5 @@ if (localStorage.getItem('token') === null) {
     showScreenFull('landing');
 } else {
     showScreenFull('dashboard');
-    loadDashboardInitial();
+    loadDashboard();
 }
