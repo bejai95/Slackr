@@ -110,6 +110,7 @@ const loadChannelDetails = (channelName, channelId) => {
         alert('ERROR: ' + error);
     })
 }
+
 const loadChannelMessages = (channelId) => {
     // Get rid of previously existing channel messages from DOM
     const container = document.getElementById('channel-messages-container');
@@ -121,7 +122,17 @@ const loadChannelMessages = (channelId) => {
     .then((data) => {
         const promises = []; 
         for (const message of data.messages.reverse()) {
-            promises.push(getMessageTimeandSender(message.message, message.sentAt, message.sender)); 
+            const formattedTimeStamp = formatTimestamp(message.sentAt); 
+            promises.push(
+                getNameFromId(message.sender)
+                .then((name) => {
+                    return {
+                        "message": message.message,
+                        "formattedTimeStamp": formattedTimeStamp,
+                        "sender": name,
+                    }
+                })
+            ) 
         }
         return Promise.all(promises);
     })
@@ -146,23 +157,6 @@ const getNameFromId = (id) => {
         })
     })
 };
-
-const getMessageTimeandSender = (message, isoString, senderId) => {
-    return new Promise((resolve, reject) => {
-        const formattedTimeStamp = formatTimestamp(isoString); 
-        getNameFromId(senderId)
-        .then((name) => {
-            resolve ({
-                "message": message,
-                "formattedTimeStamp": formattedTimeStamp,
-                "sender": name
-            })
-        })
-        .catch((error) => {
-            reject(error);
-        })
-    })
-}
 
 document.getElementById('login-button').addEventListener('click', () => showScreenFull('login'));
 document.getElementById('register-button').addEventListener('click', () => showScreenFull('register'));
