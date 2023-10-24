@@ -69,7 +69,7 @@
                         <p>Please choose a channel using the navbar on the left</p>
                     </div>
                     <div id="channel-screen" class="screen-dashboard">
-                        <h3 id="channel-title">Channel title</h3>
+                        <h1 id="channel-title">Channel title</h3>
                         <p>Channel description: <span id="channel-description"></span></p>
                         <p>Channel visibility: <span id="channel-visibility"></span></p>
                         <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
@@ -82,19 +82,15 @@
                                 <div class="message-content">Template</div>
                             </div>
                         </div>
-                                
-
-
-
-
+                        <textarea id="message-box" cols="30" rows="10" placeholder="message"></textarea> <br>
+                        <button id="message-send-button">Send</button>
                     </div>
                     <div id="create-channel-form-screen" class="screen-dashboard">
                         <h1>Create a new channel</h1>
                         <form>
                             <label for="create-channel-name">Channel name: </label>
                             <input type="text" id="create-channel-name"> <br>
-                            <label for="create-channel-description">Channel description (optional): </label>
-                            <input type="text" id="create-channel-description"> <br>
+                            <textarea id="create-channel-description" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
                             <label for="create-channel-visibilty">Channel visibility: </label>
                             <select id="create-channel-visibilty">
                                 <option value="public" selected>Public</option>
@@ -108,10 +104,7 @@
             <br>
             <button id="logout-button">Log out</button>
         </section>
-            
-        
-            
-		
+    
     
     </main>
     <footer>

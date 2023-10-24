@@ -47,13 +47,13 @@ const loadDashboard = (screenName) => {
         container.removeChild(container.lastChild);
     }
     
+    showScreenDashboard(screenName);
     apiCall('channel', 'GET', true, {})
     .then(data => {
         for (const channel of data.channels) {
             // TODO Check if user has access to the channel 
             createChannelButton(channel.name, channel.id); 
         }
-        showScreenDashboard(screenName);
     })
     .catch((error) => {
         // Deal with invalid token
@@ -90,7 +90,7 @@ const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     loadChannelDetails(channelName, channelId); // TODO later make it so only the name is visible at first until click on details
     loadChannelMessages(channelId);
-    // TODO 2.2.3
+    document.getElementById('message-send-button').setAttribute('channelId', channelId);
 }
 
 const loadChannelDetails = (channelName, channelId) => {
@@ -102,29 +102,67 @@ const loadChannelDetails = (channelName, channelId) => {
         document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
         return data.creator;
     })
-    .then (getNameFromId)
-    .then ((dataNew) => {
-        document.getElementById('channel-creator').innerText = dataNew.name;
+    .then((creatorId) => getNameFromId(creatorId))
+    .then ((name) => {
+        document.getElementById('channel-creator').innerText = name;
+    })
+    .catch((error) => {
+        alert('ERROR: ' + error);
+    })
+}
+const loadChannelMessages = (channelId) => {
+    // Get rid of previously existing channel messages from DOM
+    const container = document.getElementById('channel-messages-container');
+    while(container.children.length > 1) {
+        container.removeChild(container.lastChild);
+    }
+    
+    apiCall(`message/${channelId}?start=0`, 'GET', true, {})
+    .then((data) => {
+        const promises = []; 
+        for (const message of data.messages.reverse()) {
+            promises.push(getMessageTimeandSender(message.message, message.sentAt, message.sender)); 
+        }
+        return Promise.all(promises);
+    })
+    .then((messagesTimesandSenders) => {
+        for (const object of messagesTimesandSenders) {
+            createChannelMessage(object.message, object.sender, object.formattedTimeStamp);
+        }
     })
     .catch((error) => {
         alert('ERROR: ' + error);
     })
 }
 
-const loadChannelMessages = (channelId) => {
-    apiCall(`message/${channelId}?start=0`, 'GET', true, {})
-    .then((data) => {
-        for (const message of data.messages) {
-            const timestamp = formatTimestamp(message.sentAt);
-            getNameFromId(message.sender)
-            .then((data) => {
-                createChannelMessage(message.message, data.name, timestamp);
+const getNameFromId = (id) => {
+    return new Promise((resolve, reject) => {
+        apiCall(`user/${id}`, 'GET', true, {})
+        .then((data) => {
+            resolve(data.name); 
+        })
+        .catch((error) => {
+            reject(error);
+        })
+    })
+};
+
+const getMessageTimeandSender = (message, isoString, senderId) => {
+    return new Promise((resolve, reject) => {
+        const formattedTimeStamp = formatTimestamp(isoString); 
+        getNameFromId(senderId)
+        .then((name) => {
+            resolve ({
+                "message": message,
+                "formattedTimeStamp": formattedTimeStamp,
+                "sender": name
             })
-        }
+        })
+        .catch((error) => {
+            reject(error);
+        })
     })
 }
-
-const getNameFromId = (id) => apiCall(`user/${id}`, 'GET', true, {}); 
 
 document.getElementById('login-button').addEventListener('click', () => showScreenFull('login'));
 document.getElementById('register-button').addEventListener('click', () => showScreenFull('register'));
@@ -212,6 +250,20 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
             alert(error);
         })
     }
+})
+
+const sendButton = document.getElementById('message-send-button');
+sendButton.addEventListener('click', () => {
+    const channelId = sendButton.getAttribute('channelId');
+    apiCall(`message/${channelId}`, 'POST', true, {
+        "message": document.getElementById('message-box').value,
+    })
+    .then(() => {
+        loadChannelMessages(channelId);
+    })
+    .catch((error) => {
+        alert(error);
+    })
 })
 
 
