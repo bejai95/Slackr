@@ -12,6 +12,10 @@ html, body {
     display: none;
 }
 
+#channel-message-template {
+    display: none;
+}
+
 #flex-container {
     display: flex;
 }
@@ -27,5 +31,9 @@ html, body {
 
 #dashboard-header {
     text-align: center;
+}
+
+.channel-message {
+    margin-bottom: 30px;
 }
 

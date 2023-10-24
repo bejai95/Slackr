@@ -71,26 +71,54 @@ const createChannelButton = (channelName, channelId) => {
     })
 }
 
+const createChannelMessage = (message, sender, timestamp) => {
+    const newChannelMessage = document.getElementById('channel-message-template').cloneNode(true); 
+    newChannelMessage.removeAttribute('id');
+    newChannelMessage.querySelector('.message-content').innerText = message;
+    newChannelMessage.querySelector('.message-sender-name').innerText = sender;
+    newChannelMessage.querySelector('.message-timestamp').innerText = timestamp;
+    document.getElementById('channel-messages-container').appendChild(newChannelMessage);
+}
+
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
+    loadChannelDetails(channelName, channelId); // TODO later make it so only the name is visible at first until click on details
+    loadChannelMessages(channelId);
+    // TODO 2.2.3
+}
+
+const loadChannelDetails = (channelName, channelId) => {
     document.getElementById('channel-title').innerText = channelName;
     apiCall(`channel/${channelId}`, 'GET', true, {})
     .then((data) => {
         document.getElementById('channel-description').innerText = data.description ? data.description : 'No description given';
         document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
         document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
-
-        // Now need to get the name of the user who created the channel path, method, authorizedBool, body
-        apiCall(`user/${data.creator}`, 'GET', true, {})
-        .then ((dataNew) => {
-            document.getElementById('channel-creator').innerText = dataNew.name;
-        })
-
-    }) 
+        return data.creator;
+    })
+    .then (getNameFromId)
+    .then ((dataNew) => {
+        document.getElementById('channel-creator').innerText = dataNew.name;
+    })
     .catch((error) => {
         alert('ERROR: ' + error);
     })
 }
+
+const loadChannelMessages = (channelId) => {
+    apiCall(`message/${channelId}?start=0`, 'GET', true, {})
+    .then((data) => {
+        for (const message of data.messages) {
+            const timestamp = formatTimestamp(message.sentAt);
+            getNameFromId(message.sender)
+            .then((data) => {
+                createChannelMessage(message.message, data.name, timestamp);
+            })
+        }
+    })
+}
+
+const getNameFromId = (id) => apiCall(`user/${id}`, 'GET', true, {}); 
 
 document.getElementById('login-button').addEventListener('click', () => showScreenFull('login'));
 document.getElementById('register-button').addEventListener('click', () => showScreenFull('register'));
