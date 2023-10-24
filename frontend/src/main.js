@@ -40,7 +40,7 @@ const apiCall = (path, method, authorizedBool, body) => {
     });
 };
 
-const loadDashboard = () => {
+const loadDashboard = (screenName) => {
     // Get rid of previously existing channel buttons from DOM
     const container = document.getElementById('channel-buttons-list');
     while(container.children.length > 1) {
@@ -53,7 +53,7 @@ const loadDashboard = () => {
             // TODO Check if user has access to the channel 
             createChannelButton(channel.name, channel.id); 
         }
-        showScreenDashboard('welcome');
+        showScreenDashboard(screenName);
     })
     .catch((error) => {
         // Deal with invalid token
@@ -143,7 +143,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
     .then((data) => {
         localStorage.setItem('token', data.token);
         showScreenFull('dashboard');
-        loadDashboard();
+        loadDashboard('welcome');
     })
     .catch((error) => {
         alert('ERROR: ' + error);
@@ -167,7 +167,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
         .then((data) => {
             localStorage.setItem('token', data.token);
             showScreenFull('dashboard');
-            loadDashboard();
+            loadDashboard('welcome');
         })
         .catch((error) => {
             alert('ERROR: ' + error);
@@ -205,7 +205,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
             "description": description,
         })
         .then((data) => {
-            loadDashboard();
+            loadDashboard('channel');
             loadChannel(name, data.channelId);
         })
         .catch((error) => {
@@ -219,5 +219,5 @@ if (localStorage.getItem('token') === null) {
     showScreenFull('landing');
 } else {
     showScreenFull('dashboard');
-    loadDashboard();
+    loadDashboard('welcome');
 }
