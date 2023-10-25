@@ -99,27 +99,51 @@ const createChannelMessage = (message, sender, timestamp) => {
 
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
-    document.getElementById('channel-title').innerText = channelName;
     showScreenChannel('post-join-channel');
-    loadChannelMessagesAndDetails(channelId);
-    //loadChannelMessages(channelId); 
+    document.getElementById('channel-title').innerText = channelName;
     document.getElementById('channel-screen').setAttribute('channelId', channelId);
+    document.getElementById('channel-screen').setAttribute('channelName', channelName);
+
+    
+    // Only proceed to load channel messages if the user is a member of the channel 
+    // (if not they will be prompted to join the channnel instead)
+    loadChannelDetails(channelId)
+    .then((isMemberOfChannel) => {
+        if (isMemberOfChannel) {
+            loadChannelMessages(channelId); 
+        }
+    })
+    .catch((error) => {
+        reject(error); 
+    });
 }
 
-// Loads channel messages and details
-// Or prompts the user to join the channel if they haven't already (see catch block)
-const loadChannelMessagesAndDetails = (channelId) => {
-    loadChannelMessages(channelId)
-        .then (loadChannelDetails(channelId))
+// Load channel details if the user is a member of the channel, or prompt them to join the channel
+// if they are not a member (see catch block)
+const loadChannelDetails = (channelId) => {
+    return new Promise((resolve, reject) => {
+        apiCall(`channel/${channelId}`, 'GET', true, {})
+        .then((data) => {
+            document.getElementById('channel-description').innerText = data.description ? data.description : 'No description given';
+            document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
+            document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
+            return data.creator;
+        })
+        .then((creatorId) => getNameFromId(creatorId))
+        .then ((name) => {
+            document.getElementById('channel-creator').innerText = name;
+            resolve(true);
+        })
         .catch((error) => {
             if ( error === "Authorised user is not a member of this channel") {
-                showScreenChannel("pre-join-channel")
+                showScreenChannel("pre-join-channel");
+                resolve(false);
             } else {
-                alert('ERROR: ' + error);
+                reject(error);
             }
         })
-}   
-
+    })
+}
 
 const loadChannelMessages = (channelId) => {
     // Get rid of previously existing channel messages from DOM
@@ -150,27 +174,6 @@ const loadChannelMessages = (channelId) => {
         for (const object of messagesTimesandSenders) {
             createChannelMessage(object.message, object.sender, object.formattedTimeStamp);
         }
-    })
-    .catch((error) => {
-        if ( error === "Authorised user is not a member of this channel") {
-            showScreenChannel("pre-join-channel")
-        } else {
-            alert('ERROR: ' + error);
-        }
-    })
-}
-
-const loadChannelDetails = (channelId) => {
-    apiCall(`channel/${channelId}`, 'GET', true, {})
-    .then((data) => {
-        document.getElementById('channel-description').innerText = data.description ? data.description : 'No description given';
-        document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
-        document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
-        return data.creator;
-    })
-    .then((creatorId) => getNameFromId(creatorId))
-    .then ((name) => {
-        document.getElementById('channel-creator').innerText = name;
     })
     .catch((error) => {
         alert('ERROR: ' + error);
@@ -270,7 +273,6 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
             "description": description,
         })
         .then((data) => {
-            loadDashboard('channel');
             loadChannel(name, data.channelId);
         })
         .catch((error) => {
@@ -294,7 +296,6 @@ document.getElementById('message-send-button').addEventListener('click', () => {
 
 const showButton = document.getElementById('show-channel-details');
 showButton.addEventListener('click', () => {
-    loadChannelDetails(document.getElementById('channel-screen').getAttribute('channelId')); 
     document.getElementById('channel-details').style.display = 'block';
     showButton.style.display = 'none';
 })
@@ -302,6 +303,15 @@ showButton.addEventListener('click', () => {
 document.getElementById('hide-channel-details').addEventListener('click', () => {
     document.getElementById('channel-details').style.display = 'none';
     showButton.style.display = 'block';
+})
+
+document.getElementById('join-channel-button').addEventListener('click', () => {
+    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
+    const channelName = document.getElementById('channel-screen').getAttribute('channelName');
+    apiCall(`channel/${channelId}/join`, 'POST', true, {})
+    .then(() => {
+        loadChannel(channelName, channelId);
+    })
 })
 
 if (localStorage.getItem('token') === null) {
