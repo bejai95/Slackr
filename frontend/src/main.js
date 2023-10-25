@@ -16,6 +16,13 @@ const showScreenDashboard = (screenName) => {
 	document.getElementById(`${screenName}-screen`).style.display = 'block';
 }
 
+const showScreenChannel = (screenName) => {
+    for (const screen of document.getElementsByClassName('screen-channel')) {
+        screen.style.display = 'none';
+	}
+	document.getElementById(`${screenName}-screen`).style.display = 'block';
+}
+
 const apiCall = (path, method, authorizedBool, body) => {
     return new Promise((resolve, reject) => {
         fetch('http://localhost:' + BACKEND_PORT + '/' + path, {
@@ -51,14 +58,18 @@ const loadDashboard = (screenName) => {
     apiCall('channel', 'GET', true, {})
     .then(data => {
         for (const channel of data.channels) {
-            // TODO Check if user has access to the channel 
-            createChannelButton(channel.name, channel.id); 
+
+            // Only display public channels and private channels they have joined
+            if (!channel.private || channel.members.includes(parseInt(localStorage.getItem('userId')))) {
+                createChannelButton(channel.name, channel.id); 
+            }
         }
     })
     .catch((error) => {
         // Deal with invalid token
         if (error === "Invalid token") {
             localStorage.removeItem('token');
+            localStorage.removeItem('userId');
             showScreenFull('landing');
         
         } else {
@@ -88,28 +99,27 @@ const createChannelMessage = (message, sender, timestamp) => {
 
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
-    loadChannelDetails(channelName, channelId); // TODO later make it so only the name is visible at first until click on details
-    loadChannelMessages(channelId);
-    document.getElementById('message-send-button').setAttribute('channelId', channelId);
+    document.getElementById('channel-title').innerText = channelName;
+    showScreenChannel('post-join-channel');
+    loadChannelMessagesAndDetails(channelId);
+    //loadChannelMessages(channelId); 
+    document.getElementById('channel-screen').setAttribute('channelId', channelId);
 }
 
-const loadChannelDetails = (channelName, channelId) => {
-    document.getElementById('channel-title').innerText = channelName;
-    apiCall(`channel/${channelId}`, 'GET', true, {})
-    .then((data) => {
-        document.getElementById('channel-description').innerText = data.description ? data.description : 'No description given';
-        document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
-        document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
-        return data.creator;
-    })
-    .then((creatorId) => getNameFromId(creatorId))
-    .then ((name) => {
-        document.getElementById('channel-creator').innerText = name;
-    })
-    .catch((error) => {
-        alert('ERROR: ' + error);
-    })
-}
+// Loads channel messages and details
+// Or prompts the user to join the channel if they haven't already (see catch block)
+const loadChannelMessagesAndDetails = (channelId) => {
+    loadChannelMessages(channelId)
+        .then (loadChannelDetails(channelId))
+        .catch((error) => {
+            if ( error === "Authorised user is not a member of this channel") {
+                showScreenChannel("pre-join-channel")
+            } else {
+                alert('ERROR: ' + error);
+            }
+        })
+}   
+
 
 const loadChannelMessages = (channelId) => {
     // Get rid of previously existing channel messages from DOM
@@ -140,6 +150,27 @@ const loadChannelMessages = (channelId) => {
         for (const object of messagesTimesandSenders) {
             createChannelMessage(object.message, object.sender, object.formattedTimeStamp);
         }
+    })
+    .catch((error) => {
+        if ( error === "Authorised user is not a member of this channel") {
+            showScreenChannel("pre-join-channel")
+        } else {
+            alert('ERROR: ' + error);
+        }
+    })
+}
+
+const loadChannelDetails = (channelId) => {
+    apiCall(`channel/${channelId}`, 'GET', true, {})
+    .then((data) => {
+        document.getElementById('channel-description').innerText = data.description ? data.description : 'No description given';
+        document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
+        document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
+        return data.creator;
+    })
+    .then((creatorId) => getNameFromId(creatorId))
+    .then ((name) => {
+        document.getElementById('channel-creator').innerText = name;
     })
     .catch((error) => {
         alert('ERROR: ' + error);
@@ -174,6 +205,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
     })
     .then((data) => {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.userId); 
         showScreenFull('dashboard');
         loadDashboard('welcome');
     })
@@ -198,6 +230,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
         })
         .then((data) => {
             localStorage.setItem('token', data.token);
+            localStorage.setItem('userId', data.userId); 
             showScreenFull('dashboard');
             loadDashboard('welcome');
         })
@@ -210,13 +243,13 @@ document.getElementById('register-submit').addEventListener('click', () => {
 document.getElementById('logout-button').addEventListener('click', () => {
     apiCall('auth/logout', 'POST', true, {})
     .then(() => {
-        localStorage.removeItem('token'); 
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId'); 
         showScreenFull('landing');
     })
     .catch((error) => {
         alert(error);
     })
-    
 })
 
 document.getElementById('create-channel-button').addEventListener('click', () => {
@@ -246,9 +279,8 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
     }
 })
 
-const sendButton = document.getElementById('message-send-button');
-sendButton.addEventListener('click', () => {
-    const channelId = sendButton.getAttribute('channelId');
+document.getElementById('message-send-button').addEventListener('click', () => {
+    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
     apiCall(`message/${channelId}`, 'POST', true, {
         "message": document.getElementById('message-box').value,
     })
@@ -260,6 +292,17 @@ sendButton.addEventListener('click', () => {
     })
 })
 
+const showButton = document.getElementById('show-channel-details');
+showButton.addEventListener('click', () => {
+    loadChannelDetails(document.getElementById('channel-screen').getAttribute('channelId')); 
+    document.getElementById('channel-details').style.display = 'block';
+    showButton.style.display = 'none';
+})
+
+document.getElementById('hide-channel-details').addEventListener('click', () => {
+    document.getElementById('channel-details').style.display = 'none';
+    showButton.style.display = 'block';
+})
 
 if (localStorage.getItem('token') === null) {
     showScreenFull('landing');

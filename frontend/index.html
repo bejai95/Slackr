@@ -51,7 +51,7 @@
 		</section>
 		
 		<section id="dashboard-screen" class="screen-full">
-			<h1 id="dashboard-header">Dashboard</h1>
+			<h1 id="dashboard-heading">Dashboard</h1>
             <div id="flex-container">
                 <div id="navbar">
                     <div>List of channels</div>
@@ -69,21 +69,33 @@
                         <p>Please choose a channel using the navbar on the left</p>
                     </div>
                     <div id="channel-screen" class="screen-dashboard">
-                        <h1 id="channel-title">Channel title</h3>
-                        <p>Channel description: <span id="channel-description"></span></p>
-                        <p>Channel visibility: <span id="channel-visibility"></span></p>
-                        <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
-                        <p>Channel creator: <span id="channel-creator"></span></p>
-                        <h4>Channel messages:</h4>
-                        <div id="channel-messages-container">
-                            <div id="channel-message-template" class="channel-message">
-                                <div class="message-sender-name">Template</div>
-                                <div class="message-timestamp">Template</div>
-                                <div class="message-content">Template</div>
-                            </div>
+                        <h1 id="channel-title">Channel title</h1>
+                        <div id="pre-join-channel-screen" class="screen-channel">
+                            <p>You are not currently a member of this channel. Would you like to join?</p>
+                            <button>Join channel</button>
                         </div>
-                        <textarea id="message-box" cols="30" rows="10" placeholder="message"></textarea> <br>
-                        <button id="message-send-button">Send</button>
+                        <div id="post-join-channel-screen" class="screen-channel">
+                            <button id="show-channel-details">Show channel details</button>
+                            <div id="channel-details">
+                                <h4>Channel details</h4>
+                                <p>Channel description: <span id="channel-description"></span></p>
+                                <p>Channel visibility: <span id="channel-visibility"></span></p>
+                                <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
+                                <p>Channel creator: <span id="channel-creator"></span></p>
+                                <button id="hide-channel-details">Hide channel details</button>
+                            </div>
+                            
+                            <h4>Channel messages:</h4>
+                            <div id="channel-messages-container">
+                                <div id="channel-message-template" class="channel-message">
+                                    <div class="message-sender-name">Template</div>
+                                    <div class="message-timestamp">Template</div>
+                                    <div class="message-content">Template</div>
+                                </div>
+                            </div>
+                            <textarea id="message-box" cols="30" rows="10" placeholder="message"></textarea> <br>
+                            <button id="message-send-button">Send</button>
+                        </div>
                     </div>
                     <div id="create-channel-form-screen" class="screen-dashboard">
                         <h1>Create a new channel</h1>
