@@ -181,6 +181,27 @@ const loadChannelMessages = (channelId) => {
     })
 }
 
+
+
+
+const getAllMessages = (channelId, index, allMessagesUntilNow) => {
+    apiCall(`message/${channelId}?start=${index}`, 'GET', true, {})
+    .then((data) => {
+        if (data.messages.length === 0) {
+            console.log(allMessagesUntilNow);
+            return allMessagesUntilNow;
+        } else {
+            const newMessagesCombined = allMessagesUntilNow.concat(data.messages);
+            return getAllMessages(channelId, index + 25, newMessagesCombined);
+        }
+    })
+}
+
+
+getAllMessages(904529, 0, []);
+
+
+
 const getNameFromId = (id) => {
     return new Promise((resolve, reject) => {
         apiCall(`user/${id}`, 'GET', true, {})
