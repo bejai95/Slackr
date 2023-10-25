@@ -75,13 +75,18 @@
                             <button id="join-channel-button">Join channel</button>
                         </div>
                         <div id="post-join-channel-screen" class="screen-channel">
-                            <button id="show-channel-details">Show channel details</button>
+                            <button id="leave-channel-button">Leave channel</button> <br>
+                            <button id="show-channel-details">Show/edit channel details</button>
                             <div id="channel-details">
                                 <h4>Channel details</h4>
-                                <p>Channel description: <span id="channel-description"></span></p>
+                                <label for="channel-name">Channel name: </label>
+                                <input type="text" id="channel-name"> <br>
+                                <label for="channel-description">Channel Description: </label> <br>
+                                <textarea id="channel-description" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
                                 <p>Channel visibility: <span id="channel-visibility"></span></p>
                                 <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
                                 <p>Channel creator: <span id="channel-creator"></span></p>
+                                <button id="edit-channel-details">Edit channel details</button>
                                 <button id="hide-channel-details">Hide channel details</button>
                             </div>
                             

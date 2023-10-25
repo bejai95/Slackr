@@ -103,8 +103,8 @@ const loadChannel = (channelName, channelId) => {
     document.getElementById('channel-title').innerText = channelName;
     document.getElementById('channel-screen').setAttribute('channelId', channelId);
     document.getElementById('channel-screen').setAttribute('channelName', channelName);
+    document.getElementById('edit-channel-details').setAttribute("disabled", "");
 
-    
     // Only proceed to load channel messages if the user is a member of the channel 
     // (if not they will be prompted to join the channnel instead)
     loadChannelDetails(channelId)
@@ -124,7 +124,8 @@ const loadChannelDetails = (channelId) => {
     return new Promise((resolve, reject) => {
         apiCall(`channel/${channelId}`, 'GET', true, {})
         .then((data) => {
-            document.getElementById('channel-description').innerText = data.description ? data.description : 'No description given';
+            document.getElementById('channel-name').value = data.name;
+            document.getElementById('channel-description').value = data.description ? data.description : 'No description given';
             document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
             document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
             return data.creator;
@@ -257,6 +258,7 @@ document.getElementById('logout-button').addEventListener('click', () => {
 
 document.getElementById('create-channel-button').addEventListener('click', () => {
     showScreenDashboard('create-channel-form');
+    loadDashboard
 })
 
 document.getElementById('create-channel-submit').addEventListener('click', () => {
@@ -273,6 +275,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
             "description": description,
         })
         .then((data) => {
+            loadDashboard('channel');
             loadChannel(name, data.channelId);
         })
         .catch((error) => {
@@ -312,7 +315,41 @@ document.getElementById('join-channel-button').addEventListener('click', () => {
     .then(() => {
         loadChannel(channelName, channelId);
     })
+    .catch((error) => {
+        alert(error);
+    })
+
 })
+
+document.getElementById('leave-channel-button').addEventListener('click', () => {
+    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
+    apiCall(`channel/${channelId}/leave`, 'POST', true, {})
+    .then(() => {
+        loadDashboard('channel');
+        showScreenChannel('pre-join-channel');
+    })
+    .catch((error) => {
+        alert(error);
+    })
+})
+
+document.getElementById('channel-details').addEventListener('change', () => {
+    document.getElementById('edit-channel-details').removeAttribute("disabled");
+})
+
+document.getElementById('edit-channel-details').addEventListener('click', () => {
+    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
+    const newName = document.getElementById('channel-name').value;
+    apiCall(`channel/${channelId}`, 'PUT', true, {
+        "name": newName,
+        "description": document.getElementById('channel-description').value,
+    })
+    .then(() => {
+        loadDashboard('channel');
+        loadChannel(newName, channelId);
+    })
+})
+
 
 if (localStorage.getItem('token') === null) {
     showScreenFull('landing');
