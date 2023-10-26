@@ -175,7 +175,7 @@ const loadChannelMessages = (channelId, pageNumber) => {
     apiCall(`message/${channelId}?start=${(pageNumber - 1) * 25}`, 'GET', true, {})
     .then((data) => {
         const promises = []; 
-        for (const message of data.messages.reverse()) {
+        for (const message of data.messages) {
             const formattedTimeStamp = formatTimestamp(message.sentAt); 
             promises.push(
                 getNameFromId(message.sender)
