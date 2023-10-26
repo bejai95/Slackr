@@ -51,7 +51,6 @@
 		</section>
 		
 		<section id="dashboard-screen" class="screen-full">
-			<h1 id="dashboard-heading">Dashboard</h1>
             <div id="flex-container">
                 <div id="navbar">
                     <div>List of channels</div>
@@ -95,12 +94,17 @@
                             <h4>Channel messages:</h4>
                             <div id="channel-messages-container">
                                 <div id="channel-message-template" class="channel-message">
-                                    <div class="message-sender-name">Template</div>
-                                    <div class="message-timestamp">Template</div>
-                                    <div class="message-content">Template</div>
+                                    <div class="message-flex-container">
+                                        <img src="assets/default.png" alt="Default">
+                                        <div>
+                                            <div class="message-sender-name">Template</div>
+                                            <div class="message-timestamp">Template</div>
+                                            <div class="message-content">Template</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <p>Currently showing page <span id="pageNumber"></span> of <span id="total-pages"></span></p>
+                            <p>Currently showing page <span id="page-number"></span> of <span id="total-pages"></span></p>
                             <div id="channel-pages-container">
                                 <button id="channel-page-button-template"></button>
                             </div>

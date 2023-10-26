@@ -170,7 +170,7 @@ const loadChannelMessages = (channelId, pageNumber) => {
         container.removeChild(container.lastChild);
     }
 
-    document.getElementById('pageNumber').innerText = pageNumber;
+    document.getElementById('page-number').innerText = pageNumber;
     
     apiCall(`message/${channelId}?start=${(pageNumber - 1) * 25}`, 'GET', true, {})
     .then((data) => {
@@ -235,7 +235,7 @@ const loadPageButtons = (channelId) => {
         if (totalNumberOfPages === 0) {
             totalNumberOfPages = 1;
         }
-        document.getElementById('total-pages').innerText = totalNumberOfPages; 
+        ;document.getElementById('total-pages').innerText = totalNumberOfPages; 
         for (let pageNumber = 1; pageNumber <= totalNumberOfPages; pageNumber++) {
             createPageButton(pageNumber, channelId);
         }
