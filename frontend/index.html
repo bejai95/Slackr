@@ -81,12 +81,14 @@
                                 <h4>Channel details</h4>
                                 <label for="channel-name">Channel name: </label>
                                 <input type="text" id="channel-name"> <br>
-                                <label for="channel-description">Channel Description: </label> <br>
-                                <textarea id="channel-description" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
+                                <label for="channel-description-edit">Channel Description: </label> <br>
+                                <textarea id="channel-description-edit" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
                                 <p>Channel visibility: <span id="channel-visibility"></span></p>
                                 <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
                                 <p>Channel creator: <span id="channel-creator"></span></p>
                                 <button id="edit-channel-details">Edit channel details</button>
+                                <button id="cancel-edit-details">Cancel edit</button>
+                                <button id="confirm-edit-details">Confirm edit</button>
                                 <button id="hide-channel-details">Hide channel details</button>
                             </div>
                             
@@ -98,10 +100,15 @@
                                     <div class="message-content">Template</div>
                                 </div>
                             </div>
+                            <p>Currently showing page <span id="pageNumber"></span> of <span id="total-pages"></span></p>
+                            <div id="channel-pages-container">
+                                <button id="channel-page-button-template"></button>
+                            </div>
                             <textarea id="message-box" cols="30" rows="10" placeholder="message"></textarea> <br>
                             <button id="message-send-button">Send</button>
                         </div>
                     </div>
+
                     <div id="create-channel-form-screen" class="screen-dashboard">
                         <h1>Create a new channel</h1>
                         <form>

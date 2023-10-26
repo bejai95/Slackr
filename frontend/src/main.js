@@ -97,25 +97,42 @@ const createChannelMessage = (message, sender, timestamp) => {
     document.getElementById('channel-messages-container').appendChild(newChannelMessage);
 }
 
+const createPageButton = (pageNumber, channelId) => {
+    const newPageButton = document.getElementById('channel-page-button-template').cloneNode('true');
+    newPageButton.removeAttribute('id');
+    newPageButton.innerText = pageNumber;
+    document.getElementById('channel-pages-container').appendChild(newPageButton);
+    newPageButton.addEventListener('click', () => {
+        loadChannelMessages(channelId, pageNumber);
+    })
+}
+
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     showScreenChannel('post-join-channel');
     document.getElementById('channel-title').innerText = channelName;
     document.getElementById('channel-screen').setAttribute('channelId', channelId);
     document.getElementById('channel-screen').setAttribute('channelName', channelName);
-    document.getElementById('edit-channel-details').setAttribute("disabled", "");
+    
+    document.getElementById('edit-channel-details').removeAttribute("disabled")
+    document.getElementById('channel-name').setAttribute("disabled", "");
+    document.getElementById('channel-description-edit').setAttribute("disabled", "");
+    document.getElementById('confirm-edit-details').setAttribute("disabled", "");
+    document.getElementById('cancel-edit-details').setAttribute("disabled", "");
+    
 
-    // Only proceed to load channel messages if the user is a member of the channel 
+    // Only proceed to load channel details and messages if the user is a member of the channel 
     // (if not they will be prompted to join the channnel instead)
     loadChannelDetails(channelId)
     .then((isMemberOfChannel) => {
         if (isMemberOfChannel) {
-            loadChannelMessages(channelId); 
+            loadChannelMessages(channelId, 1); 
+            loadPageButtons(channelId);
         }
     })
     .catch((error) => {
-        reject(error); 
-    });
+        alert('ERROR: ' + error);
+    })
 }
 
 // Load channel details if the user is a member of the channel, or prompt them to join the channel
@@ -125,7 +142,7 @@ const loadChannelDetails = (channelId) => {
         apiCall(`channel/${channelId}`, 'GET', true, {})
         .then((data) => {
             document.getElementById('channel-name').value = data.name;
-            document.getElementById('channel-description').value = data.description ? data.description : 'No description given';
+            document.getElementById('channel-description-edit').value = data.description ? data.description : 'No description given';
             document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
             document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
             return data.creator;
@@ -146,14 +163,16 @@ const loadChannelDetails = (channelId) => {
     })
 }
 
-const loadChannelMessages = (channelId) => {
+const loadChannelMessages = (channelId, pageNumber) => {
     // Get rid of previously existing channel messages from DOM
     const container = document.getElementById('channel-messages-container');
     while(container.children.length > 1) {
         container.removeChild(container.lastChild);
     }
+
+    document.getElementById('pageNumber').innerText = pageNumber;
     
-    apiCall(`message/${channelId}?start=0`, 'GET', true, {})
+    apiCall(`message/${channelId}?start=${(pageNumber - 1) * 25}`, 'GET', true, {})
     .then((data) => {
         const promises = []; 
         for (const message of data.messages.reverse()) {
@@ -181,31 +200,47 @@ const loadChannelMessages = (channelId) => {
     })
 }
 
+const getAllMessages = (channelId) => {
+    return new Promise((resolve, reject) => {
+        const recursiveFunction = (channelId, index, allMessagesUntilNow) => {
+            apiCall(`message/${channelId}?start=${index}`, 'GET', true, {})
+            .then((data) => {
+                if (data.messages.length === 0) {
+                    resolve(allMessagesUntilNow);
+                } else {
+                    const newMessagesCombined = allMessagesUntilNow.concat(data.messages);
+                    return recursiveFunction(channelId, index + 25, newMessagesCombined);
+                }
+            })
+            .catch((error) => {
+                reject(error);
+            })
+        }
+    
+        recursiveFunction(channelId, 0, []);
+    })
+}
 
-
-
-const newPromise = new Promise((resolve, reject) => {
-    const getAllMessages = (channelId, index, allMessagesUntilNow) => {
-        apiCall(`message/${channelId}?start=${index}`, 'GET', true, {})
-        .then((data) => {
-            if (data.messages.length === 0) {
-                resolve(allMessagesUntilNow);
-                return allMessagesUntilNow;
-            } else {
-                const newMessagesCombined = allMessagesUntilNow.concat(data.messages);
-                return getAllMessages(channelId, index + 25, newMessagesCombined);
-            }
-        })
+const loadPageButtons = (channelId) => {
+    // Get rid of previously existing page numbers from the DOM
+    const container = document.getElementById('channel-pages-container');
+    while(container.children.length > 1) {
+        container.removeChild(container.lastChild);
     }
 
-    getAllMessages(904529, 0, []);
-})
-
-newPromise.then((allMessages) => {
-    console.log(allMessages);
-})
-
-
+    getAllMessages(channelId)
+    .then((data) => {
+        const totalNumberOfMessages = data.length;
+        let totalNumberOfPages = Math.ceil(totalNumberOfMessages / 25 );
+        if (totalNumberOfPages === 0) {
+            totalNumberOfPages = 1;
+        }
+        document.getElementById('total-pages').innerText = totalNumberOfPages; 
+        for (let pageNumber = 1; pageNumber <= totalNumberOfPages; pageNumber++) {
+            createPageButton(pageNumber, channelId);
+        }
+    })
+}
 
 const getNameFromId = (id) => {
     return new Promise((resolve, reject) => {
@@ -316,7 +351,8 @@ document.getElementById('message-send-button').addEventListener('click', () => {
         "message": document.getElementById('message-box').value,
     })
     .then(() => {
-        loadChannelMessages(channelId);
+        loadChannelMessages(channelId, 1);
+        loadPageButtons(channelId);
     })
     .catch((error) => {
         alert(error);
@@ -359,16 +395,40 @@ document.getElementById('leave-channel-button').addEventListener('click', () => 
     })
 })
 
-document.getElementById('channel-details').addEventListener('change', () => {
-    document.getElementById('edit-channel-details').removeAttribute("disabled");
+/* document.getElementById('channel-name').setAttribute("disabled", "");
+    document.getElementById('channel-description-edit').setAttribute("disabled", "");
+    document.getElementById('confirm-edit-details').setAttribute("disabled", "");
+    document.getElementById('cancel-edit-details').setAttribute("disabled", ""); */
+
+const editButton = document.getElementById('edit-channel-details');
+const cancelButton = document.getElementById('cancel-edit-details');
+const confirmButton = document.getElementById('confirm-edit-details');
+const name = document.getElementById('channel-name');
+const description = document.getElementById('channel-description-edit'); 
+editButton.addEventListener('click', () => {
+    editButton.setAttribute("disabled", "");
+    name.removeAttribute("disabled");
+    description.removeAttribute("disabled");
+    cancelButton.removeAttribute("disabled");
 })
 
-document.getElementById('edit-channel-details').addEventListener('click', () => {
+document.getElementById('channel-details').addEventListener('change', () => {
+    confirmButton.removeAttribute("disabled");
+})
+
+cancelButton.addEventListener('click', () => {
+    const channelName = document.getElementById('channel-screen').getAttribute('channelName');
     const channelId = document.getElementById('channel-screen').getAttribute('channelId');
-    const newName = document.getElementById('channel-name').value;
+    loadChannel(channelName, channelId);
+})
+
+confirmButton.addEventListener('click', () => {
+    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
+    const newName = name.value;
+    const newDescription = description.value;
     apiCall(`channel/${channelId}`, 'PUT', true, {
         "name": newName,
-        "description": document.getElementById('channel-description').value,
+        "description": newDescription,
     })
     .then(() => {
         loadDashboard('channel');
