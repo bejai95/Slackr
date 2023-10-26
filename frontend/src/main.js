@@ -88,17 +88,20 @@ const createChannelButton = (channelName, channelId) => {
     })
 }
 
-const createChannelMessage = (channelId, messageId, pageNumber, message, sender, timestamp) => {
+const createChannelMessage = (channelId, messageId, pageNumber, message, sender, formattedSentAt, editedBool, formattedEditedAt) => {
     const newChannelMessage = document.getElementById('channel-message-template').cloneNode(true); 
     newChannelMessage.removeAttribute('id');
     newChannelMessage.querySelector('.message-content').innerText = message;
     newChannelMessage.querySelector('.message-sender-name').innerText = sender;
-    newChannelMessage.querySelector('.message-timestamp').innerText = timestamp;
+    newChannelMessage.querySelector('.message-timestamp').innerText = formattedSentAt;
     newChannelMessage.querySelector('.message-edit-tools').style.display = 'none';
     document.getElementById('channel-messages-container').appendChild(newChannelMessage);
 
-    // Put in if statement, get off server 
-    // newChannelMessage.querySelector('.message-edit-info').style.display = 'none';
+    if (editedBool === false) {
+        newChannelMessage.querySelector('.message-edit-info').style.display = 'none';
+    } else {
+        newChannelMessage.querySelector('.message-edit-timestamp').innerText = formattedEditedAt;
+    }
 
     newChannelMessage.querySelector('.message-delete-button').addEventListener('click', () => {
         apiCall(`message/${channelId}/${messageId}`, 'DELETE', true, {})
@@ -125,9 +128,26 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
 
     })
 
-    /*apiCall(`message/${channelId}/${messageId}`, 'PUT', true, {
-            message: 
-        })*/
+    newChannelMessage.querySelector('.message-edit-confirm').addEventListener('click', () => {
+        const regex = /^\s*$/; 
+        const messageEdit = newChannelMessage.querySelector('.message-edit-text');
+
+        if (regex.test(messageEdit.value)) {
+            alert("You cannot update to an empty string or a message containing only whitespace");
+        } else if (messageEdit.value === newChannelMessage.querySelector('.message-content').innerText) {
+            alert("message is still the same as what it was before. Please update it first");
+        } else {
+            apiCall(`message/${channelId}/${messageId}`, 'PUT', true, {
+                message: messageEdit.value,
+            })
+            .then(() => {
+                loadChannelMessages(channelId, pageNumber);
+            })
+            .catch((error) => {
+                alert(error);
+            })  
+        }
+    })
 }
 
 const createPageButton = (pageNumber, channelId) => {
@@ -196,6 +216,7 @@ const loadChannelDetails = (channelId) => {
 }
 
 const loadChannelMessages = (channelId, pageNumber) => {
+    
     // Get rid of previously existing channel messages from DOM
     const container = document.getElementById('channel-messages-container');
     while(container.children.length > 1) {
@@ -203,22 +224,23 @@ const loadChannelMessages = (channelId, pageNumber) => {
     }
 
     document.getElementById('message-box').value = "";
-    document.getElementById('message-box').focus();
+    document.getElementById('message-box').focus(); // Auto-focus on the message input box so user can start typing immediately
     document.getElementById('page-number').innerText = pageNumber;
     
     apiCall(`message/${channelId}?start=${(pageNumber - 1) * 25}`, 'GET', true, {})
     .then((data) => {
         const promises = []; 
-        for (const message of data.messages) {
-            const formattedTimeStamp = formatTimestamp(message.sentAt); 
+        for (const message of data.messages) { 
             promises.push(
                 getNameFromId(message.sender)
                 .then((name) => {
                     return {
                         "id": message.id,
                         "message": message.message,
-                        "formattedTimeStamp": formattedTimeStamp,
+                        "formattedSentAt": formatTimestamp(message.sentAt),
                         "sender": name,
+                        "edited": message.edited,
+                        "formattedEditedAt": formatTimestamp(message.editedAt),
                     }
                 })
             ) 
@@ -227,7 +249,16 @@ const loadChannelMessages = (channelId, pageNumber) => {
     })
     .then((details) => {
         for (const object of details) {
-            createChannelMessage(channelId, object.id, pageNumber, object.message, object.sender, object.formattedTimeStamp);
+            createChannelMessage(
+                channelId, 
+                object.id, 
+                pageNumber, 
+                object.message, 
+                object.sender, 
+                object.formattedSentAt,
+                object.edited,
+                object.formattedEditedAt
+            );           
         }
     })
     .catch((error) => {
@@ -382,7 +413,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
 
 const handleMessageSend = () => {
     const regex = /^\s*$/; 
-    const message = document.getElementById('message-box').value;
+    const message = document.getElementById('message-box').value.trim();
 
     if (regex.test(message)) {
         alert("You cannot send an empty string or a message containing only whitespace");
@@ -414,6 +445,7 @@ document.getElementById('join-channel-button').addEventListener('click', () => {
     apiCall(`channel/${channelId}/join`, 'POST', true, {})
     .then(() => {
         loadChannel(channelName, channelId);
+
     })
     .catch((error) => {
         alert(error);
