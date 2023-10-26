@@ -79,10 +79,16 @@
                             <button id="show-channel-details">Show/edit channel details</button>
                             <div id="channel-details">
                                 <h4>Channel details</h4>
-                                <label for="channel-name">Channel name: </label>
-                                <input type="text" id="channel-name"> <br>
-                                <label for="channel-description-edit">Channel Description: </label> <br>
-                                <textarea id="channel-description-edit" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
+                                <div id="details-non-edit">
+                                    <p>Channel name: <span id="channel-name-show"></span> </p>
+                                    <p>Channel description: <span id="channel-description-show"></span></p>
+                                </div>
+                                <div id="details-edit">
+                                    <label for="channel-name-edit">New channel name: </label>
+                                    <input type="text" id="channel-name-edit"> <br>
+                                    <label for="channel-description-edit">New channel Description: </label> <br>
+                                    <textarea id="channel-description-edit" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
+                                </div>
                                 <p>Channel visibility: <span id="channel-visibility"></span></p>
                                 <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
                                 <p>Channel creator: <span id="channel-creator"></span></p>
@@ -100,13 +106,20 @@
                                             <img src="assets/default.png" alt="Default">
                                             <div>
                                                 <div class="message-sender-name">Sender</div>
-                                                    <div class="message-timestamp">Timestamp</div>
+                                                <div class="message-timestamp">Timestamp</div>
                                                 <div class="message-content">Message</div>
+                                                <div class="message-edit-tools">
+                                                    <textarea class="message-edit-text" cols="60" rows="5" placeholder="Edit message"></textarea> <br>
+                                                    <button class="message-edit-cancel">Cancel</button>
+                                                    <button class="message-edit-confirm">Confirm</button>
+                                                </div>
+                                                <div class="message-edit-info">Edited information </div>
+                                                
                                             </div>
                                         </div>
                                         <div>
                                             <button class="message-delete-button">Delete</button>
-                                            <button>Edit</button> <br>
+                                            <button class="message-edit-button">Edit</button> <br>
                                             <button>React</button>
                                             <button>Pin</button>
 

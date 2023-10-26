@@ -94,19 +94,40 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
     newChannelMessage.querySelector('.message-content').innerText = message;
     newChannelMessage.querySelector('.message-sender-name').innerText = sender;
     newChannelMessage.querySelector('.message-timestamp').innerText = timestamp;
+    newChannelMessage.querySelector('.message-edit-tools').style.display = 'none';
     document.getElementById('channel-messages-container').appendChild(newChannelMessage);
+
+    // Put in if statement, get off server 
+    // newChannelMessage.querySelector('.message-edit-info').style.display = 'none';
 
     newChannelMessage.querySelector('.message-delete-button').addEventListener('click', () => {
         apiCall(`message/${channelId}/${messageId}`, 'DELETE', true, {})
         .then(() => {
             loadChannelMessages(channelId, pageNumber);
             loadPageButtons(channelId);
-
         })
         .catch((error) => {
             alert('ERROR: ' + error);
         })
     })
+
+    newChannelMessage.querySelector('.message-edit-button').addEventListener('click', () => {
+        newChannelMessage.querySelector('.message-edit-button').setAttribute("disabled", "");
+        newChannelMessage.querySelector('.message-content').style.display = 'none';
+        newChannelMessage.querySelector('.message-edit-tools').style.display = 'block';
+        newChannelMessage.querySelector('.message-edit-text').value = message;
+    })
+
+    newChannelMessage.querySelector('.message-edit-cancel').addEventListener('click', () => {
+        newChannelMessage.querySelector('.message-edit-button').removeAttribute("disabled");
+        newChannelMessage.querySelector('.message-edit-tools').style.display = 'none';
+        newChannelMessage.querySelector('.message-content').style.display = 'block';
+
+    })
+
+    /*apiCall(`message/${channelId}/${messageId}`, 'PUT', true, {
+            message: 
+        })*/
 }
 
 const createPageButton = (pageNumber, channelId) => {
@@ -125,10 +146,9 @@ const loadChannel = (channelName, channelId) => {
     document.getElementById('channel-title').innerText = channelName;
     document.getElementById('channel-screen').setAttribute('channelId', channelId);
     document.getElementById('channel-screen').setAttribute('channelName', channelName);
-    
-    document.getElementById('edit-channel-details').removeAttribute("disabled")
-    document.getElementById('channel-name').setAttribute("disabled", "");
-    document.getElementById('channel-description-edit').setAttribute("disabled", "");
+    document.getElementById('details-edit').style.display = 'none';
+    document.getElementById('details-non-edit').style.display = 'block';
+    document.getElementById('edit-channel-details').removeAttribute("disabled");
     document.getElementById('confirm-edit-details').setAttribute("disabled", "");
     document.getElementById('cancel-edit-details').setAttribute("disabled", "");
     
@@ -153,8 +173,8 @@ const loadChannelDetails = (channelId) => {
     return new Promise((resolve, reject) => {
         apiCall(`channel/${channelId}`, 'GET', true, {})
         .then((data) => {
-            document.getElementById('channel-name').value = data.name;
-            document.getElementById('channel-description-edit').value = data.description ? data.description : 'No description given';
+            document.getElementById('channel-name-show').innerText = data.name;
+            document.getElementById('channel-description-show').innerText = data.description ? data.description : 'No description given';
             document.getElementById('channel-visibility').innerText = data.private === false ? "Public" : "Private";
             document.getElementById('channel-creation-timestamp').innerText = formatTimestamp(data.createdAt);
             return data.creator;
@@ -182,6 +202,8 @@ const loadChannelMessages = (channelId, pageNumber) => {
         container.removeChild(container.lastChild);
     }
 
+    document.getElementById('message-box').value = "";
+    document.getElementById('message-box').focus();
     document.getElementById('page-number').innerText = pageNumber;
     
     apiCall(`message/${channelId}?start=${(pageNumber - 1) * 25}`, 'GET', true, {})
@@ -248,7 +270,7 @@ const loadPageButtons = (channelId) => {
         if (totalNumberOfPages === 0) {
             totalNumberOfPages = 1;
         }
-        ;document.getElementById('total-pages').innerText = totalNumberOfPages; 
+        document.getElementById('total-pages').innerText = totalNumberOfPages; 
         for (let pageNumber = 1; pageNumber <= totalNumberOfPages; pageNumber++) {
             createPageButton(pageNumber, channelId);
         }
@@ -358,7 +380,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
     }
 })
 
-document.getElementById('message-send-button').addEventListener('click', () => {
+const handleMessageSend = () => {
     const regex = /^\s*$/; 
     const message = document.getElementById('message-box').value;
 
@@ -376,6 +398,13 @@ document.getElementById('message-send-button').addEventListener('click', () => {
         .catch((error) => {
             alert(error);
         })
+    }
+}
+
+document.getElementById('message-send-button').addEventListener('click', handleMessageSend);
+document.getElementById('message-box').addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+        handleMessageSend();
     }
 })
 
@@ -418,36 +447,37 @@ document.getElementById('hide-channel-details').addEventListener('click', () => 
 const editButton = document.getElementById('edit-channel-details');
 const cancelButton = document.getElementById('cancel-edit-details');
 const confirmButton = document.getElementById('confirm-edit-details');
-const name = document.getElementById('channel-name');
-const description = document.getElementById('channel-description-edit'); 
+const channelNameEdit = document.getElementById('channel-name-edit');
+const channelDescriptionEdit = document.getElementById('channel-description-edit'); 
 editButton.addEventListener('click', () => {
     editButton.setAttribute("disabled", "");
-    name.removeAttribute("disabled");
-    description.removeAttribute("disabled");
     cancelButton.removeAttribute("disabled");
-})
-
-document.getElementById('channel-details').addEventListener('change', () => {
     confirmButton.removeAttribute("disabled");
+    document.getElementById('details-non-edit').style.display = 'none';
+    document.getElementById('details-edit').style.display = 'block';
+    document.getElementById('channel-name-edit').value = document.getElementById('channel-name-show').innerText;
+    document.getElementById('channel-description-edit').value = document.getElementById('channel-description-show').innerText;
 })
 
 cancelButton.addEventListener('click', () => {
-    const channelName = document.getElementById('channel-screen').getAttribute('channelName');
-    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
-    loadChannel(channelName, channelId);
+    editButton.removeAttribute("disabled");
+    cancelButton.setAttribute("disabled", "");
+    confirmButton.setAttribute("disabled", ""); 
+    document.getElementById('details-non-edit').style.display = 'block';
+    document.getElementById('details-edit').style.display = 'none';
 })
 
 confirmButton.addEventListener('click', () => {
     const channelId = document.getElementById('channel-screen').getAttribute('channelId');
-    const newName = name.value;
-    const newDescription = description.value;
+    const newChannelName = channelNameEdit.value;
+    const newChannelDescription = channelDescriptionEdit.value;
     apiCall(`channel/${channelId}`, 'PUT', true, {
-        "name": newName,
-        "description": newDescription,
+        "name": newChannelName,
+        "description": newChannelDescription,
     })
     .then(() => {
         loadDashboard('channel');
-        loadChannel(newName, channelId);
+        loadChannel(newChannelName, channelId);
     })
 })
 
