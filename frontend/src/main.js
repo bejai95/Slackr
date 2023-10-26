@@ -2,6 +2,12 @@ import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl, formatTimestamp } from './helpers.js';
 
+const EMOJI_1 = '❤️';
+const EMOJI_2 = '😂';
+const EMOJI_3 = '😭';
+const EMOJI_4 = '👍';
+const EMOJI_5 = '💪';
+
 const showScreenFull = (screenName) => {
     for (const screen of document.getElementsByClassName('screen-full')) {
         screen.style.display = 'none';
@@ -88,7 +94,8 @@ const createChannelButton = (channelName, channelId) => {
     })
 }
 
-const createChannelMessage = (channelId, messageId, pageNumber, message, sender, formattedSentAt, editedBool, formattedEditedAt) => {
+const createChannelMessage = (channelId, messageId, pageNumber, message, sender, formattedSentAt, editedBool, formattedEditedAt, reactCount) => {
+    
     const newChannelMessage = document.getElementById('channel-message-template').cloneNode(true); 
     newChannelMessage.removeAttribute('id');
     newChannelMessage.querySelector('.message-content').innerText = message;
@@ -101,6 +108,16 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
         newChannelMessage.querySelector('.message-edit-info').style.display = 'none';
     } else {
         newChannelMessage.querySelector('.message-edit-timestamp').innerText = formattedEditedAt;
+    }
+
+    // Display the count of each of the 5 reacts
+    for (let i = 1; i <= 5; i++) {
+        const query = '.count-' + i; 
+        let emojiCount = reactCount[eval(`EMOJI_${i}`)]; 
+        if (emojiCount === undefined) {
+            emojiCount = 0;
+        }
+        newChannelMessage.querySelector(query).innerText = emojiCount; 
     }
 
     newChannelMessage.querySelector('.message-delete-button').addEventListener('click', () => {
@@ -148,6 +165,35 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
             })  
         }
     })
+
+    // Add event listeners for each of the 5 reacts
+    for (let i = 1; i <=5; i++) {
+        newChannelMessage.querySelector(`.react-${i}`).addEventListener('click', () => {
+            apiCall(`message/react/${channelId}/${messageId}`, 'POST', true, {
+                react: eval(`EMOJI_${i}`),
+            })
+            .then(() => {
+                loadChannelMessages(channelId, pageNumber);
+            })
+            .catch((error) => {
+                
+                // If the error was because user has already done that reaction type, unreact instead
+                if (error === "This message already contains a react of this type from this user") {
+                    apiCall(`message/unreact/${channelId}/${messageId}`, 'POST', true, {
+                        react: eval(`EMOJI_${i}`),
+                    })
+                    .then(() => {
+                        loadChannelMessages(channelId, pageNumber);
+                    }) 
+                } else {
+                    throw error; 
+                }
+            })
+            .catch((error) => {
+                    alert(error);
+            })  
+        })                    
+    } 
 }
 
 const createPageButton = (pageNumber, channelId) => {
@@ -241,6 +287,7 @@ const loadChannelMessages = (channelId, pageNumber) => {
                         "sender": name,
                         "edited": message.edited,
                         "formattedEditedAt": formatTimestamp(message.editedAt),
+                        "reactCount": countReactTypes(message.reacts),
                     }
                 })
             ) 
@@ -257,7 +304,8 @@ const loadChannelMessages = (channelId, pageNumber) => {
                 object.sender, 
                 object.formattedSentAt,
                 object.edited,
-                object.formattedEditedAt
+                object.formattedEditedAt,
+                object.reactCount,
             );           
         }
     })
@@ -265,6 +313,16 @@ const loadChannelMessages = (channelId, pageNumber) => {
         alert('ERROR: ' + error);
     })
 }
+
+const countReactTypes = (reacts) => {
+    const ret = {};
+    for (const react of reacts) {
+        const emoji = react.react;
+        ret[emoji] = ret[emoji] ? ret[emoji] + 1 : 1;
+    }
+    return ret;
+}
+
 
 const getAllMessages = (channelId) => {
     return new Promise((resolve, reject) => {
