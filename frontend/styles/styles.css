@@ -16,6 +16,10 @@ html, body {
     display: none;
 }
 
+#channel-page-button-template {
+    display: none;
+}
+
 #channel-details {
     display: none;
 }
@@ -33,11 +37,27 @@ html, body {
     flex: 3;
 }
 
-#dashboard-heading {
-    text-align: center;
-}
-
 .channel-message {
     margin-bottom: 30px;
 }
+img {
+    width: 50px;
+    height: 50px;
+}
 
+.message-outer-flex-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.message-inner-flex-container {
+    display: flex;
+}
+
+#channel-messages-container {
+    height: 300px;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column-reverse;
+    
+}

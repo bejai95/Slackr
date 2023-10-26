@@ -88,13 +88,25 @@ const createChannelButton = (channelName, channelId) => {
     })
 }
 
-const createChannelMessage = (message, sender, timestamp) => {
+const createChannelMessage = (channelId, messageId, pageNumber, message, sender, timestamp) => {
     const newChannelMessage = document.getElementById('channel-message-template').cloneNode(true); 
     newChannelMessage.removeAttribute('id');
     newChannelMessage.querySelector('.message-content').innerText = message;
     newChannelMessage.querySelector('.message-sender-name').innerText = sender;
     newChannelMessage.querySelector('.message-timestamp').innerText = timestamp;
     document.getElementById('channel-messages-container').appendChild(newChannelMessage);
+
+    newChannelMessage.querySelector('.message-delete-button').addEventListener('click', () => {
+        apiCall(`message/${channelId}/${messageId}`, 'DELETE', true, {})
+        .then(() => {
+            loadChannelMessages(channelId, pageNumber);
+            loadPageButtons(channelId);
+
+        })
+        .catch((error) => {
+            alert('ERROR: ' + error);
+        })
+    })
 }
 
 const createPageButton = (pageNumber, channelId) => {
@@ -181,6 +193,7 @@ const loadChannelMessages = (channelId, pageNumber) => {
                 getNameFromId(message.sender)
                 .then((name) => {
                     return {
+                        "id": message.id,
                         "message": message.message,
                         "formattedTimeStamp": formattedTimeStamp,
                         "sender": name,
@@ -190,9 +203,9 @@ const loadChannelMessages = (channelId, pageNumber) => {
         }
         return Promise.all(promises);
     })
-    .then((messagesTimesandSenders) => {
-        for (const object of messagesTimesandSenders) {
-            createChannelMessage(object.message, object.sender, object.formattedTimeStamp);
+    .then((details) => {
+        for (const object of details) {
+            createChannelMessage(channelId, object.id, pageNumber, object.message, object.sender, object.formattedTimeStamp);
         }
     })
     .catch((error) => {
@@ -346,28 +359,24 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
 })
 
 document.getElementById('message-send-button').addEventListener('click', () => {
-    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
-    apiCall(`message/${channelId}`, 'POST', true, {
-        "message": document.getElementById('message-box').value,
-    })
-    .then(() => {
-        loadChannelMessages(channelId, 1);
-        loadPageButtons(channelId);
-    })
-    .catch((error) => {
-        alert(error);
-    })
-})
+    const regex = /^\s*$/; 
+    const message = document.getElementById('message-box').value;
 
-const showButton = document.getElementById('show-channel-details');
-showButton.addEventListener('click', () => {
-    document.getElementById('channel-details').style.display = 'block';
-    showButton.style.display = 'none';
-})
-
-document.getElementById('hide-channel-details').addEventListener('click', () => {
-    document.getElementById('channel-details').style.display = 'none';
-    showButton.style.display = 'block';
+    if (regex.test(message)) {
+        alert("You cannot send an empty string or a message containing only whitespace");
+    } else {
+        const channelId = document.getElementById('channel-screen').getAttribute('channelId');
+        apiCall(`message/${channelId}`, 'POST', true, {
+            "message": message,
+        })
+        .then(() => {
+            loadChannelMessages(channelId, 1);
+            loadPageButtons(channelId);
+        })
+        .catch((error) => {
+            alert(error);
+        })
+    }
 })
 
 document.getElementById('join-channel-button').addEventListener('click', () => {
@@ -395,10 +404,16 @@ document.getElementById('leave-channel-button').addEventListener('click', () => 
     })
 })
 
-/* document.getElementById('channel-name').setAttribute("disabled", "");
-    document.getElementById('channel-description-edit').setAttribute("disabled", "");
-    document.getElementById('confirm-edit-details').setAttribute("disabled", "");
-    document.getElementById('cancel-edit-details').setAttribute("disabled", ""); */
+const showButton = document.getElementById('show-channel-details');
+showButton.addEventListener('click', () => {
+    document.getElementById('channel-details').style.display = 'block';
+    showButton.style.display = 'none';
+})
+
+document.getElementById('hide-channel-details').addEventListener('click', () => {
+    document.getElementById('channel-details').style.display = 'none';
+    showButton.style.display = 'block';
+})
 
 const editButton = document.getElementById('edit-channel-details');
 const cancelButton = document.getElementById('cancel-edit-details');

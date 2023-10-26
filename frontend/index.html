@@ -60,7 +60,8 @@
                         </div>
                     </div>
                     <br>
-                    <button id="create-channel-button">Create new channel</button>
+                    <button id="create-channel-button">Create new channel</button> <br>
+                    <button id="logout-button">Log out</button>
                 </div>
                 <div id="main-content">
                     <div id="welcome-screen" class="screen-dashboard">
@@ -94,12 +95,21 @@
                             <h4>Channel messages:</h4>
                             <div id="channel-messages-container">
                                 <div id="channel-message-template" class="channel-message">
-                                    <div class="message-flex-container">
-                                        <img src="assets/default.png" alt="Default">
+                                    <div class="message-outer-flex-container">
+                                        <div class="message-inner-flex-container">
+                                            <img src="assets/default.png" alt="Default">
+                                            <div>
+                                                <div class="message-sender-name">Sender</div>
+                                                    <div class="message-timestamp">Timestamp</div>
+                                                <div class="message-content">Message</div>
+                                            </div>
+                                        </div>
                                         <div>
-                                            <div class="message-sender-name">Template</div>
-                                            <div class="message-timestamp">Template</div>
-                                            <div class="message-content">Template</div>
+                                            <button class="message-delete-button">Delete</button>
+                                            <button>Edit</button> <br>
+                                            <button>React</button>
+                                            <button>Pin</button>
+
                                         </div>
                                     </div>
                                 </div>
@@ -108,7 +118,7 @@
                             <div id="channel-pages-container">
                                 <button id="channel-page-button-template"></button>
                             </div>
-                            <textarea id="message-box" cols="30" rows="10" placeholder="message"></textarea> <br>
+                            <textarea id="message-box" cols="60" rows="5" placeholder="message"></textarea> <br>
                             <button id="message-send-button">Send</button>
                         </div>
                     </div>
@@ -130,7 +140,6 @@
                 </div>
             </div>
             <br>
-            <button id="logout-button">Log out</button>
         </section>
     
     
