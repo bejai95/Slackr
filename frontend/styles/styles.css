@@ -61,3 +61,7 @@ img {
     flex-direction: column-reverse;
     
 }
+
+.reacted {
+    background-color: gold;
+}

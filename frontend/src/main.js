@@ -110,14 +110,22 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
         newChannelMessage.querySelector('.message-edit-timestamp').innerText = formattedEditedAt;
     }
 
-    // Display the count of each of the 5 reacts
+    // Set count and highlighting for each of the 5 reacts
     for (let i = 1; i <= 5; i++) {
+        // Set the total number for this react
         const query = '.count-' + i; 
-        let emojiCount = reactCount[eval(`EMOJI_${i}`)]; 
+        const currentEmoji = eval(`EMOJI_${i}`); 
+        let emojiCount = reactCount[currentEmoji];
         if (emojiCount === undefined) {
             emojiCount = 0;
         }
         newChannelMessage.querySelector(query).innerText = emojiCount; 
+
+        // Highlight this button if the user has done this react
+        if (reactCount.currentUserReacts.includes(currentEmoji)) {
+            const query = '.react-' + i; 
+            newChannelMessage.querySelector(query).classList.add("reacted");
+        }
     }
 
     newChannelMessage.querySelector('.message-delete-button').addEventListener('click', () => {
@@ -169,29 +177,28 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
     // Add event listeners for each of the 5 reacts
     for (let i = 1; i <=5; i++) {
         newChannelMessage.querySelector(`.react-${i}`).addEventListener('click', () => {
-            apiCall(`message/react/${channelId}/${messageId}`, 'POST', true, {
-                react: eval(`EMOJI_${i}`),
-            })
-            .then(() => {
-                loadChannelMessages(channelId, pageNumber);
-            })
-            .catch((error) => {
-                
-                // If the error was because user has already done that reaction type, unreact instead
-                if (error === "This message already contains a react of this type from this user") {
-                    apiCall(`message/unreact/${channelId}/${messageId}`, 'POST', true, {
-                        react: eval(`EMOJI_${i}`),
-                    })
-                    .then(() => {
-                        loadChannelMessages(channelId, pageNumber);
-                    }) 
-                } else {
-                    throw error; 
-                }
-            })
-            .catch((error) => {
+            const query = '.react-' + i; 
+            if (newChannelMessage.querySelector(query).classList.contains('reacted')) {
+                apiCall(`message/unreact/${channelId}/${messageId}`, 'POST', true, {
+                    react: eval(`EMOJI_${i}`),
+                })
+                .then(() => {
+                    loadChannelMessages(channelId, pageNumber);
+                })
+                .catch((error) => {
                     alert(error);
-            })  
+                })
+            } else {
+                apiCall(`message/react/${channelId}/${messageId}`, 'POST', true, {
+                    react: eval(`EMOJI_${i}`),
+                })
+                .then(() => {
+                    loadChannelMessages(channelId, pageNumber);
+                })
+                .catch((error) => {
+                    alert(error);
+                })
+            }
         })                    
     } 
 }
@@ -287,7 +294,7 @@ const loadChannelMessages = (channelId, pageNumber) => {
                         "sender": name,
                         "edited": message.edited,
                         "formattedEditedAt": formatTimestamp(message.editedAt),
-                        "reactCount": countReactTypes(message.reacts),
+                        "reacts": countReactTypes(message.reacts),
                     }
                 })
             ) 
@@ -305,7 +312,7 @@ const loadChannelMessages = (channelId, pageNumber) => {
                 object.formattedSentAt,
                 object.edited,
                 object.formattedEditedAt,
-                object.reactCount,
+                object.reacts,
             );           
         }
     })
@@ -316,8 +323,12 @@ const loadChannelMessages = (channelId, pageNumber) => {
 
 const countReactTypes = (reacts) => {
     const ret = {};
+    ret.currentUserReacts = [];
     for (const react of reacts) {
         const emoji = react.react;
+        if (react.user === parseInt(localStorage.getItem('userId'))) {
+            ret.currentUserReacts.push(emoji);
+        }
         ret[emoji] = ret[emoji] ? ret[emoji] + 1 : 1;
     }
     return ret;
