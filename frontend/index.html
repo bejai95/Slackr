@@ -75,8 +75,16 @@
                             <button id="join-channel-button">Join channel</button>
                         </div>
                         <div id="post-join-channel-screen" class="screen-channel">
-                            <button id="leave-channel-button">Leave channel</button> <br>
-                            <button id="show-channel-details">Show/edit channel details</button>
+                            <div id="top-options-flex">
+                                <div>
+                                    <button id="show-channel-details">Show/edit channel details</button>
+                                    <button id="leave-channel-button">Leave channel</button>
+                                </div>
+                                <select id="default-or-pinned">
+                                    <option value="default-view" selected>Default View</option>
+                                    <option value="pinned-view">Pinned View</option>
+                                </select>
+                            </div>
                             <div id="channel-details">
                                 <h4>Channel details</h4>
                                 <div id="details-non-edit">
@@ -128,15 +136,17 @@
                                         <div>
                                             <button class="message-delete-button">Delete</button> 
                                             <button class="message-edit-button">Edit</button>
-                                            <button>Pin</button>
+                                            <button class="message-pin-or-unpin">Pin</button>
 
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <p>Currently showing page <span id="page-number"></span> of <span id="total-pages"></span></p>
-                            <div id="channel-pages-container">
-                                <button id="channel-page-button-template"></button>
+                            <div id="page-numbers-container">
+                                <p>Currently showing page <span id="page-number"></span> of <span id="total-pages"></span></p>
+                                <div id="channel-pages-container">
+                                    <button id="channel-page-button-template"></button>
+                                </div>
                             </div>
                             <textarea id="message-box" cols="60" rows="5" placeholder="message"></textarea> <br>
                             <button id="message-send-button">Send</button>

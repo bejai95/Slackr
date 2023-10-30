@@ -54,6 +54,11 @@ img {
     display: flex;
 }
 
+#top-options-flex {
+    display: flex;
+    justify-content: space-between;
+}
+
 #channel-messages-container {
     height: 300px;
     overflow: scroll;
