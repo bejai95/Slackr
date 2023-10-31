@@ -8,6 +8,8 @@ const EMOJI_3 = '😭';
 const EMOJI_4 = '👍';
 const EMOJI_5 = '💪';
 
+let currentChannelId = null;
+
 const showScreenFull = (screenName) => {
     for (const screen of document.getElementsByClassName('screen-full')) {
         screen.style.display = 'none';
@@ -235,6 +237,9 @@ const createPageButton = (pageNumber, channelId) => {
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     showScreenChannel('post-join-channel');
+
+    currentChannelId = channelId;
+
     document.getElementById('channel-title').innerText = channelName;
     document.getElementById('channel-screen').setAttribute('channelId', channelId);
     document.getElementById('channel-screen').setAttribute('channelName', channelName);
@@ -243,12 +248,7 @@ const loadChannel = (channelName, channelId) => {
     document.getElementById('edit-channel-details').removeAttribute("disabled");
     document.getElementById('confirm-edit-details').setAttribute("disabled", "");
     document.getElementById('cancel-edit-details').setAttribute("disabled", "");
-
-    document.getElementById('default-or-pinned').addEventListener('change', () => {
-        loadChannelMessages(channelId, 1)
-    })
     
-
     // Only proceed to load channel details and messages if the user is a member of the channel 
     // (if not they will be prompted to join the channnel instead)
     loadChannelDetails(channelId)
@@ -591,6 +591,10 @@ showButton.addEventListener('click', () => {
 document.getElementById('hide-channel-details').addEventListener('click', () => {
     document.getElementById('channel-details').style.display = 'none';
     showButton.style.display = 'inline-block';
+})
+
+document.getElementById('default-or-pinned').addEventListener('change', () => {
+    loadChannelMessages(currentChannelId, 1)
 })
 
 const editButton = document.getElementById('edit-channel-details');
