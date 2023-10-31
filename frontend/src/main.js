@@ -56,6 +56,11 @@ const apiCall = (path, method, authorizedBool, body) => {
     });
 };
 
+const showErrorModal = (error) => {
+    document.getElementById('error-modal').classList.add('is-active')
+    document.getElementById('error-modal-content').innerText = error;
+}
+
 const loadDashboard = (screenName) => {
     // Get rid of previously existing channel buttons from DOM
     const container = document.getElementById('channel-buttons-list');
@@ -79,10 +84,10 @@ const loadDashboard = (screenName) => {
         if (error === "Invalid token") {
             localStorage.removeItem('token');
             localStorage.removeItem('userId');
-            showScreenFull('landing');
+            showScreenFull('login');
         
         } else {
-            alert('ERROR: ' + error);
+            showErrorModal(error);
         }
     })
 }
@@ -143,7 +148,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
             loadPageButtons(currentChannelId);
         })
         .catch((error) => {
-            alert('ERROR: ' + error);
+            showErrorModal(error);
         })
     })
 
@@ -166,9 +171,9 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
         const messageEdit = newChannelMessage.querySelector('.message-edit-text');
 
         if (regex.test(messageEdit.value)) {
-            alert("You cannot update to an empty string or a message containing only whitespace");
+            showErrorModal("You cannot update to an empty string or a message containing only whitespace");
         } else if (messageEdit.value === newChannelMessage.querySelector('.message-content').innerText) {
-            alert("message is still the same as what it was before. Please update it first");
+            showErrorModal("message is still the same as what it was before. Please update it first")
         } else {
             apiCall(`message/${currentChannelId}/${messageId}`, 'PUT', true, {
                 message: messageEdit.value,
@@ -177,7 +182,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
                 loadChannelMessages(pageNumber);
             })
             .catch((error) => {
-                alert(error);
+                showErrorModal(error);
             })  
         }
     })
@@ -211,17 +216,17 @@ const callReactOrUnreact = (messageId, pageNumber, emojiIndex, reactOrUnreact) =
         loadChannelMessages(pageNumber);
     })
     .catch((error) => {
-        alert(error);
+        showErrorModal(error);
     })
 }
 
 const callPinorUnpin = (messageId, pageNumber, pinOrUnpin) => {
     apiCall(`message/${pinOrUnpin}/${currentChannelId}/${messageId}`, 'POST', true, {})
     .then(() => {
-        loadChannelMessages(currentChannelId, pageNumber);
+        loadChannelMessages(pageNumber);
     })
     .catch((error) => {
-        alert(error);
+        showErrorModal(error);
     })
 }
 
@@ -249,7 +254,7 @@ const createInviteButton = (userName, userId) => {
             loadChannel(currentChannelName, currentChannelId);
         })
         .catch((error) => {
-            alert(error);
+            showErrorModal(error);
         })
     })
 }
@@ -279,7 +284,7 @@ const loadChannel = (channelName, channelId) => {
         }
     })
     .catch((error) => {
-        alert('ERROR: ' + error);
+        showErrorModal(error);
     })
 }
 
@@ -372,7 +377,7 @@ const loadChannelMessages = (pageNumber) => {
         }
     })
     .catch((error) => {
-        alert('ERROR: ' + error);
+        showErrorModal(error);
     })
 }
 
@@ -498,7 +503,7 @@ const getUsersToInvite = () => {
         }
     })
     .catch((error) => {
-        alert(error);
+        showErrorModal(error);
     })
 }
 
@@ -524,12 +529,8 @@ const getUsersNotInChannel = (allUsers) => {
 }
 
 
-document.getElementById('login-button').addEventListener('click', () => showScreenFull('login'));
-document.getElementById('register-button').addEventListener('click', () => showScreenFull('register'));
-
-for (const backButton of document.getElementsByClassName('back-button')) {
-    backButton.addEventListener('click', () => showScreenFull('landing'));
-}
+document.getElementById('login-link').addEventListener('click', () => showScreenFull('login'));
+document.getElementById('register-link').addEventListener('click', () => showScreenFull('register'));
 
 document.getElementById('login-submit').addEventListener('click', () => {
     const email = document.getElementById('login-email').value;
@@ -545,7 +546,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
         loadDashboard('welcome');
     })
     .catch((error) => {
-        alert('ERROR: ' + error);
+        showErrorModal(error);
     })
 })
 
@@ -556,7 +557,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
     const confirmPassword = document.getElementById('register-password-confirm').value;
 
     if (password !== confirmPassword) {
-        alert("Passwords do not match");
+        showErrorModal("Passwords do not match");
     } else {
         apiCall('auth/register', 'POST', false, {
             "email": email,
@@ -570,9 +571,13 @@ document.getElementById('register-submit').addEventListener('click', () => {
             loadDashboard('welcome');
         })
         .catch((error) => {
-            alert('ERROR: ' + error);
+            showErrorModal(error);
         })
     }
+})
+
+document.getElementById('error-modal-close').addEventListener('click', () => {
+    document.getElementById('error-modal').classList.remove('is-active')
 })
 
 document.getElementById('logout-button').addEventListener('click', () => {
@@ -580,10 +585,10 @@ document.getElementById('logout-button').addEventListener('click', () => {
     .then(() => {
         localStorage.removeItem('token');
         localStorage.removeItem('userId'); 
-        showScreenFull('landing');
+        showScreenFull('login');
     })
     .catch((error) => {
-        alert(error);
+        showErrorModal(error);
     })
 })
 
@@ -598,7 +603,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
     const privateBool = document.getElementById('create-channel-visibilty').value === 'private';
 
     if (name === '') {
-        alert("Please enter a name for your channel");
+        showErrorModal("Please enter a name for your channel");
     } else {
         apiCall('channel', 'POST', true, {
             "name": name,
@@ -610,7 +615,7 @@ document.getElementById('create-channel-submit').addEventListener('click', () =>
             loadChannel(name, data.channelId);
         })
         .catch((error) => {
-            alert(error);
+            showErrorModal(error);
         })
     }
 })
@@ -620,7 +625,7 @@ const handleMessageSend = () => {
     const message = document.getElementById('message-box').value.trim();
 
     if (regex.test(message)) {
-        alert("You cannot send an empty string or a message containing only whitespace");
+        showErrorModal("You cannot send an empty string or a message containing only whitespace");
     } else {
         apiCall(`message/${currentChannelId}`, 'POST', true, {
             "message": message,
@@ -630,7 +635,7 @@ const handleMessageSend = () => {
             loadPageButtons(currentChannelId);
         })
         .catch((error) => {
-            alert(error);
+            showErrorModal(error);
         })
     }
 }
@@ -649,7 +654,7 @@ document.getElementById('join-channel-button').addEventListener('click', () => {
 
     })
     .catch((error) => {
-        alert(error);
+        showErrorModal(error);
     })
 })
 
@@ -660,7 +665,7 @@ document.getElementById('leave-channel-button').addEventListener('click', () => 
         showScreenChannel('pre-join-channel');
     })
     .catch((error) => {
-        alert(error);
+        showErrorModal(error);
     })
 })
 
@@ -719,11 +724,11 @@ confirmButton.addEventListener('click', () => {
         loadChannel(newChannelName, currentChannelId);
     })
     .catch((error) => {
-        alert(error);
+        showErrorModal(error);
     })
 })
 if (localStorage.getItem('token') === null) {
-    showScreenFull('landing');
+    showScreenFull('login');
 } else {
     showScreenFull('dashboard');
     loadDashboard('welcome');

@@ -1,13 +1,3 @@
-
-/* base styles, feel free to edit */
-html, body {
-    margin: 0;
-    padding: 0;
-    background-color: #fafafa;
-    height: 100%;
-    font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
 #channel-button-template {
     display: none;
 }

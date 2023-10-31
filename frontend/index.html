@@ -1,191 +1,208 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Slackr</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- You can add your styles and scripts here -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" type="text/css" media="screen" href="styles/styles.css" />
     <script type="module" src="src/helpers.js"></script>
 </head>
+<body class="m-3">
+    <h1 class="is-size-1 has-text-centered has-text-weight-bold">Slackr</h1>
+    
+    <section id="login-screen" class="screen-full">
+        <h2 class="is-size-3 has-text-weight-bold">Log in</h2>
+        <div class="field mt-6">
+            <label for="login-email" class="label is-large">Email</label>
+            <div class="control">
+                <input class="input is-large" type="text" id="login-email">
+            </div>
+        </div>
+        <div class="field">
+            <label for="login-password" class="label is-large">Password</label>
+            <div class="control">
+                <input class="input is-large" type="password" id="login-password"> <br>
+            </div>
+        </div>
+        <button class="button is-link is-large mt-3" type="button" id="login-submit">Submit</button>
+        <p>Don't have an account? <a id="register-link">Register</a></p>
+    </section>
+    
+    <section id="register-screen" class="screen-full">
+        <h2 class="is-size-3 has-text-weight-bold">Register</h2>
+        <div class="field mt-6">
+            <label for="register-name" class="label is-large">Name</label>
+            <div class="control">
+                <input class="input is-large" type="text" id="register-name">
+            </div>
+        </div>
+        <div class="field">
+            <label for="register-email" class="label is-large">Email</label>
+            <div class="control">
+                <input class="input is-large" type="text" id="register-email">
+            </div>
+        </div>
+        <div class="field">
+            <label for="register-password" class="label is-large">Password</label>
+            <div class="control">
+                <input class="input is-large" type="password" id="register-password">
+            </div>
+        </div>
+        <div class="field">
+            <label for="register-password-confirm" class="label is-large">Confirm password: </label>
+            <div class="control">
+                <input class="input is-large" type="password" id="register-password-confirm">
+            </div>
+        </div>
+        <button class="button is-link is-large mt-3" type="button" id="register-submit">Submit</button>
+        <p>Already have an account? <a id="login-link">Log in</a></p>
+    </section>
 
-<body>
-    <header class="banner">
-        <h1>Slackr</h1>
-    </header>
-    <main role="main">
-        
-		<section id="landing-screen" class="screen-full">
-			<button id="login-button">Log in</button>
-			<button id="register-button">Register</button>
-		</section>
-		
-		<section id="login-screen" class="screen-full">
-			<button class="back-button">Back</button>
-			<h1>Log in</h1>
-			<form>
-				<label for="login-email">Email: </label>
-				<input type="text" id="login-email" value="mia@email.com"> <br>
-				<label for="login-password">Password: </label>
-				<input type="password" id="login-password" value="solongbouldercity"> <br>
-				<button type="button" id="login-submit">Submit</button>
-			</form>
-		</section>
-		
-		<section id="register-screen" class="screen-full">
-			<button class="back-button">Back</button>
-			<h1>Register</h1>
-			<form>
-				<label for="register-name">Name: </label>
-				<input type="text" id="register-name"> <br>
-				<label for="register-email">Email: </label>
-				<input type="text" id="register-email"> <br>
-				<label for="register-password">Password: </label>
-				<input type="password" id="register-password"> <br>
-				<label for="register-password-confirm">Confirm password: </label>
-				<input type="password" id="register-password-confirm"> <br>
-				<button type="button" id="register-submit">Submit</button>
-			</form>
-		</section>
-		
-		<section id="dashboard-screen" class="screen-full">
-            <div id="flex-container">
-                <div id="navbar">
-                    <div>List of channels</div>
-                    <div id="channel-buttons-list">
-                        <div id="channel-button-template">
-                            <button class="content">Template</button>
-                        </div>
+    <div id="error-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head has-background-danger">
+                <p class="modal-card-title has-text-white is-size-1">Error!</p>
+                <button id="error-modal-close" class="delete is-large" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <p id="error-modal-content" class="is-size-3">Insert error here</p>
+            </section>
+        </div>
+    </div>
+    
+    <section id="dashboard-screen" class="screen-full">
+        <div id="flex-container">
+            <div id="navbar">
+                <p>List of channels</p>
+                <div id="channel-buttons-list">
+                    <div id="channel-button-template">
+                        <button class="content">Template</button>
                     </div>
-                    <br>
-                    <button id="create-channel-button">Create new channel</button> <br>
-                    <button id="logout-button">Log out</button>
                 </div>
-                <div id="main-content">
-                    <div id="welcome-screen" class="screen-dashboard">
-                        <h1>Welcome</h1>
-                        <p>Please choose a channel using the navbar on the left</p>
+                <br>
+                <button id="create-channel-button">Create new channel</button> <br>
+                <button id="logout-button">Log out</button>
+            </div>
+            <div id="main-content">
+                <div id="welcome-screen" class="screen-dashboard">
+                    <h2>Welcome</h2>
+                    <p>Please choose a channel using the navbar on the left</p>
+                </div>
+                <div id="channel-screen" class="screen-dashboard">
+                    <h2 id="channel-title">Channel title</h2>
+                    <div id="pre-join-channel-screen" class="screen-channel">
+                        <p>You are not currently a member of this channel. Would you like to join?</p>
+                        <button id="join-channel-button">Join channel</button>
                     </div>
-                    <div id="channel-screen" class="screen-dashboard">
-                        <h1 id="channel-title">Channel title</h1>
-                        <div id="pre-join-channel-screen" class="screen-channel">
-                            <p>You are not currently a member of this channel. Would you like to join?</p>
-                            <button id="join-channel-button">Join channel</button>
+                    <div id="post-join-channel-screen" class="screen-channel">
+                        <div id="top-options-flex">
+                            <div>
+                                <button id="show-channel-details">Show/edit channel details</button>
+                                <button id="show-invite-users">Invite users</button>
+                                <button id="leave-channel-button">Leave channel</button>
+                            </div>
+                            <select id="default-or-pinned">
+                                <option value="default-view" selected>Default View</option>
+                                <option value="pinned-view">Pinned View</option>
+                            </select>
                         </div>
-                        <div id="post-join-channel-screen" class="screen-channel">
-                            <div id="top-options-flex">
-                                <div>
-                                    <button id="show-channel-details">Show/edit channel details</button>
-                                    <button id="show-invite-users">Invite users</button>
-                                    <button id="leave-channel-button">Leave channel</button>
-                                </div>
-                                <select id="default-or-pinned">
-                                    <option value="default-view" selected>Default View</option>
-                                    <option value="pinned-view">Pinned View</option>
-                                </select>
+                        <div id="channel-details">
+                            <h3>Channel details</h3>
+                            <div id="details-non-edit">
+                                <p>Channel name: <span id="channel-name-show"></span> </p>
+                                <p>Channel description: <span id="channel-description-show"></span></p>
                             </div>
-                            <div id="channel-details">
-                                <h4>Channel details</h4>
-                                <div id="details-non-edit">
-                                    <p>Channel name: <span id="channel-name-show"></span> </p>
-                                    <p>Channel description: <span id="channel-description-show"></span></p>
-                                </div>
-                                <div id="details-edit">
-                                    <label for="channel-name-edit">New channel name: </label>
-                                    <input type="text" id="channel-name-edit"> <br>
-                                    <label for="channel-description-edit">New channel Description: </label> <br>
-                                    <textarea id="channel-description-edit" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
-                                </div>
-                                <p>Channel visibility: <span id="channel-visibility"></span></p>
-                                <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
-                                <p>Channel creator: <span id="channel-creator"></span></p>
-                                <button id="edit-channel-details">Edit channel details</button>
-                                <button id="cancel-edit-details">Cancel edit</button>
-                                <button id="confirm-edit-details">Confirm edit</button>
-                                <button id="hide-channel-details">Hide channel details</button>
+                            <div id="details-edit">
+                                <label for="channel-name-edit">New channel name: </label>
+                                <input type="text" id="channel-name-edit"> <br>
+                                <label for="channel-description-edit">New channel Description: </label> <br>
+                                <textarea id="channel-description-edit" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
                             </div>
-                            <div id="invite-users">
-                                <h4>Invite users to channel</h4>
-                                <p>Note that inviting a user will add them automatically.</p>
-                                <div id="invite-user-buttons-container">
-                                    <button id="invite-user-button-template">Template</button>
-                                </div>
+                            <p>Channel visibility: <span id="channel-visibility"></span></p>
+                            <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
+                            <p>Channel creator: <span id="channel-creator"></span></p>
+                            <button id="edit-channel-details">Edit channel details</button>
+                            <button id="cancel-edit-details">Cancel edit</button>
+                            <button id="confirm-edit-details">Confirm edit</button>
+                            <button id="hide-channel-details">Hide channel details</button>
+                        </div>
+                        <div id="invite-users">
+                            <h3>Invite users to channel</h3>
+                            <p>Note that inviting a user will add them automatically.</p>
+                            <div id="invite-user-buttons-container">
+                                <button id="invite-user-button-template">Template</button>
                             </div>
-                            
-                            <h4>Channel messages:</h4>
-                            <div id="channel-messages-container">
-                                <div id="channel-message-template" class="channel-message">
-                                    <div class="message-outer-flex-container">
-                                        <div class="message-inner-flex-container">
-                                            <img src="assets/default.png" alt="Default">
-                                            <div>
-                                                <div class="message-sender-name">Sender</div>
-                                                <div class="message-timestamp">Timestamp</div>
-                                                <div class="message-edit-info">Edited on <span class="message-edit-timestamp"></span></div>
-                                                <div class="message-content">Message</div>
-                                                <div class="message-edit-tools">
-                                                    <textarea class="message-edit-text" cols="60" rows="5" placeholder="Edit message"></textarea> <br>
-                                                    <button class="message-edit-cancel">Cancel</button>
-                                                    <button class="message-edit-confirm">Confirm</button>
-                                                </div>
-                                                <div class="reacts">
-                                                    <button class="react-1">❤️: <span class="count-1">0</span></button>
-                                                    <button class="react-2">😂: <span class="count-2">0</span></button>
-                                                    <button class="react-3">😭: <span class="count-3">0</span></button>
-                                                    <button class="react-4">👍: <span class="count-4">0</span></button>
-                                                    <button class="react-5">💪: <span class="count-5">0</span></button> 
-                                                </div>
-                                                
-                                                
-                                            </div>
-                                        </div>
+                        </div>
+                        
+                        <h3>Channel messages:</h3>
+                        <div id="channel-messages-container">
+                            <div id="channel-message-template" class="channel-message">
+                                <div class="message-outer-flex-container">
+                                    <div class="message-inner-flex-container">
+                                        <img src="assets/default.png" alt="Default">
                                         <div>
-                                            <button class="message-delete-button">Delete</button> 
-                                            <button class="message-edit-button">Edit</button>
-                                            <button class="message-pin-or-unpin">Pin</button>
-
+                                            <p class="message-sender-name">Sender</p>
+                                            <p class="message-timestamp">Timestamp</p>
+                                            <p class="message-edit-info">Edited on <span class="message-edit-timestamp"></span></p>
+                                            <p class="message-content">Message</p>
+                                            <div class="message-edit-tools">
+                                                <textarea class="message-edit-text" cols="60" rows="5" placeholder="Edit message"></textarea> <br>
+                                                <button class="message-edit-cancel">Cancel</button>
+                                                <button class="message-edit-confirm">Confirm</button>
+                                            </div>
+                                            <div class="reacts">
+                                                <button class="react-1">❤️: <span class="count-1">0</span></button>
+                                                <button class="react-2">😂: <span class="count-2">0</span></button>
+                                                <button class="react-3">😭: <span class="count-3">0</span></button>
+                                                <button class="react-4">👍: <span class="count-4">0</span></button>
+                                                <button class="react-5">💪: <span class="count-5">0</span></button> 
+                                            </div>
+                                            
+                                            
                                         </div>
+                                    </div>
+                                    <div>
+                                        <button class="message-delete-button">Delete</button> 
+                                        <button class="message-edit-button">Edit</button>
+                                        <button class="message-pin-or-unpin">Pin</button>
+
                                     </div>
                                 </div>
                             </div>
-                            <div id="page-numbers-container">
-                                <p>Currently showing page <span id="page-number"></span> of <span id="total-pages"></span></p>
-                                <div id="channel-pages-container">
-                                    <button id="channel-page-button-template"></button>
-                                </div>
-                            </div>
-                            <textarea id="message-box" cols="60" rows="5" placeholder="message"></textarea> <br>
-                            <button id="message-send-button">Send</button>
                         </div>
-                    </div>
-
-                    <div id="create-channel-form-screen" class="screen-dashboard">
-                        <h1>Create a new channel</h1>
-                        <form>
-                            <label for="create-channel-name">Channel name: </label>
-                            <input type="text" id="create-channel-name"> <br>
-                            <textarea id="create-channel-description" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
-                            <label for="create-channel-visibilty">Channel visibility: </label>
-                            <select id="create-channel-visibilty">
-                                <option value="public" selected>Public</option>
-                                <option value="private">Private</option>
-                            </select> <br>
-                            <button type="button" id="create-channel-submit">Submit</button>
-                        </form>
+                        <div id="page-numbers-container">
+                            <p>Currently showing page <span id="page-number"></span> of <span id="total-pages"></span></p>
+                            <div id="channel-pages-container">
+                                <button id="channel-page-button-template"></button>
+                            </div>
+                        </div>
+                        <textarea id="message-box" cols="60" rows="5" placeholder="message"></textarea> <br>
+                        <button id="message-send-button">Send</button>
                     </div>
                 </div>
-            </div>
-            <br>
-        </section>
-    
-    
-    </main>
-    <footer>
-        <p>&copy; Slackr</p>
-    </footer>
-    <script type="module" src="src/main.js"></script>
-    </body>
 
+                <div id="create-channel-form-screen" class="screen-dashboard">
+                    <h2>Create a new channel</h2>
+                    <form>
+                        <label for="create-channel-name">Channel name: </label>
+                        <input type="text" id="create-channel-name"> <br>
+                        <textarea id="create-channel-description" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
+                        <label for="create-channel-visibilty">Channel visibility: </label>
+                        <select id="create-channel-visibilty">
+                            <option value="public" selected>Public</option>
+                            <option value="private">Private</option>
+                        </select> <br>
+                        <button type="button" id="create-channel-submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <br>
+    </section>
+    
+    <script type="module" src="src/main.js"></script>
+</body>
 </html>
