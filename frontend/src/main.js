@@ -239,6 +239,8 @@ const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     showScreenChannel('post-join-channel');
 
+    showUsersToInvite(); // Delete this later
+
     document.getElementById('channel-title').innerText = channelName;
     document.getElementById('details-edit').style.display = 'none';
     document.getElementById('details-non-edit').style.display = 'block';
@@ -250,7 +252,7 @@ const loadChannel = (channelName, channelId) => {
     currentChannelName = channelName;
     
     // Only proceed to load channel details and messages if the user is a member of the channel 
-    // (if not they will be prompted to join the channnel instead)
+    // (if not they will be prompted to join the channel instead)
     loadChannelDetails(channelId)
     .then((isMemberOfChannel) => {
         if (isMemberOfChannel) {
@@ -276,8 +278,8 @@ const loadChannelDetails = () => {
             return data.creator;
         })
         .then((creatorId) => getNameFromId(creatorId))
-        .then ((creatorName) => {
-            document.getElementById('channel-creator').innerText = creatorName;
+        .then ((creator) => {
+            document.getElementById('channel-creator').innerText = creator.name;
             resolve(true);
         })
         .catch((error) => {
@@ -320,12 +322,12 @@ const loadChannelMessages = (pageNumber) => {
             }
             promises.push(
                 getNameFromId(message.sender)
-                .then((name) => {
+                .then((result) => {
                     return {
                         "id": message.id,
                         "message": message.message,
                         "formattedSentAt": formatTimestamp(message.sentAt),
-                        "sender": name,
+                        "sender": result.name,
                         "edited": message.edited,
                         "formattedEditedAt": formatTimestamp(message.editedAt),
                         "reacts": countReactTypes(message.reacts),
@@ -428,7 +430,10 @@ const getNameFromId = (id) => {
     return new Promise((resolve, reject) => {
         apiCall(`user/${id}`, 'GET', true, {})
         .then((data) => {
-            resolve(data.name); 
+            resolve({
+                name: data.name,
+                id: id,
+            }); 
         })
         .catch((error) => {
             reject(error);
@@ -627,6 +632,78 @@ confirmButton.addEventListener('click', () => {
     })
 })
 
+const showUsersToInvite = () => {
+    apiCall('user', 'GET', true, {})
+    .then((allUsers) => {
+        return getUsersNotInChannel(allUsers.users);  
+    })
+    .then((usersNotInChannel) => {
+        const promises = [];
+        for (const user of usersNotInChannel) {
+            promises.push(getNameFromId(user))
+        }
+        return Promise.all(promises);
+    })
+    .then((data) => {
+        
+        // Used help from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+        const alphabeticallySortedData = data.sort((a, b) => {
+            const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+            const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+            if (nameA < nameB) {
+                return -1;
+            } else if (nameA > nameB) {
+                return 1;
+            } else { // names must be equal
+                return 0;
+            }
+
+        });
+        console.log(alphabeticallySortedData)
+    })
+    .catch((error) => {
+        alert(error);
+    })
+    // Get all the users (just Ids)
+    // Get their names as well
+    // Select the ones of these who aren't in the channel
+    // Put in alphabetical order and create buttons etc
+
+    /*getChannelMessages(pageNumber, pinnedView)
+    .then((messages) => {
+        const promises = []; 
+        for (const message of messages) { 
+            if (pinnedView && !message.pinned) {
+                continue;
+            }
+            promises.push(
+                getNameFromId(message.sender)
+                .then((name) => {
+                    return {
+                        "id": message.id,
+                        "message": message.message, */
+}
+
+// Now get all the users who are not in the channel
+const getUsersNotInChannel = (allUsers) => {
+    return new Promise((resolve, reject) => {
+        let usersNotInChannel = [];
+        
+        apiCall(`channel/${currentChannelId}`, 'GET', true, {})
+        .then((data) => {
+            for (const user of allUsers) {
+                if (!data.members.includes(user.id)) {
+                    usersNotInChannel.push(user.id)
+                }
+            }
+            resolve(usersNotInChannel);
+        })
+        .catch((error) => {
+            reject(error);
+        })
+        
+    })
+}
 
 if (localStorage.getItem('token') === null) {
     showScreenFull('landing');
