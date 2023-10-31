@@ -235,15 +235,33 @@ const createPageButton = (pageNumber) => {
     })
 }
 
+const createInviteButton = (userName, userId) => {
+    const newInviteButton = document.getElementById('invite-user-button-template').cloneNode('true');
+    newInviteButton.removeAttribute('id');
+    newInviteButton.innerText = userName;
+    document.getElementById('invite-user-buttons-container').appendChild(newInviteButton);
+    
+    newInviteButton.addEventListener('click', () => {
+        apiCall(`channel/${currentChannelId}/invite`, 'POST', true, {
+            "userId": userId
+        })
+        .then(() => {
+            loadChannel(currentChannelName, currentChannelId);
+        })
+        .catch((error) => {
+            alert(error);
+        })
+    })
+}
+
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     showScreenChannel('post-join-channel');
 
-    showUsersToInvite(); // Delete this later
-
     document.getElementById('channel-title').innerText = channelName;
     document.getElementById('details-edit').style.display = 'none';
     document.getElementById('details-non-edit').style.display = 'block';
+    document.getElementById('invite-users').style.display = 'none';
     document.getElementById('edit-channel-details').removeAttribute("disabled");
     document.getElementById('confirm-edit-details').setAttribute("disabled", "");
     document.getElementById('cancel-edit-details').setAttribute("disabled", "");
@@ -441,6 +459,71 @@ const getNameFromId = (id) => {
     })
 };
 
+const getUsersToInvite = () => {
+     
+    // Get rid of previously existing invite buttons from DOM
+    const container = document.getElementById('invite-user-buttons-container');
+    while(container.children.length > 1) {
+        container.removeChild(container.lastChild);
+    }
+    
+    apiCall('user', 'GET', true, {})
+    .then((allUsers) => {
+        return getUsersNotInChannel(allUsers.users);  
+    })
+    .then((usersNotInChannel) => {
+        const promises = [];
+        for (const user of usersNotInChannel) {
+            promises.push(getNameFromId(user))
+        }
+        return Promise.all(promises);
+    })
+    .then((data) => {
+        
+        // Used help from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+        const alphabeticallySortedData = data.sort((a, b) => {
+            const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+            const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+            if (nameA < nameB) {
+                return -1;
+            } else if (nameA > nameB) {
+                return 1;
+            } else { // names must be equal
+                return 0;
+            }
+        });
+
+        for (const nameandId of alphabeticallySortedData) {
+            createInviteButton(nameandId.name, nameandId.id);
+        }
+    })
+    .catch((error) => {
+        alert(error);
+    })
+}
+
+// Now get all the users who are not in the channel
+const getUsersNotInChannel = (allUsers) => {
+    return new Promise((resolve, reject) => {
+        let usersNotInChannel = [];
+        
+        apiCall(`channel/${currentChannelId}`, 'GET', true, {})
+        .then((data) => {
+            for (const user of allUsers) {
+                if (!data.members.includes(user.id)) {
+                    usersNotInChannel.push(user.id)
+                }
+            }
+            resolve(usersNotInChannel);
+        })
+        .catch((error) => {
+            reject(error);
+        })
+        
+    })
+}
+
+
 document.getElementById('login-button').addEventListener('click', () => showScreenFull('login'));
 document.getElementById('register-button').addEventListener('click', () => showScreenFull('register'));
 
@@ -593,8 +676,13 @@ document.getElementById('hide-channel-details').addEventListener('click', () => 
 })
 
 document.getElementById('default-or-pinned').addEventListener('change', () => {
-    loadChannelMessages(1)
+    loadChannelMessages(1) // Load the first page of messages
 })
+
+document.getElementById('show-invite-users').addEventListener('click', () => {
+    getUsersToInvite(); 
+    document.getElementById('invite-users').style.display = 'block';
+});
 
 const editButton = document.getElementById('edit-channel-details');
 const cancelButton = document.getElementById('cancel-edit-details');
@@ -622,89 +710,18 @@ cancelButton.addEventListener('click', () => {
 confirmButton.addEventListener('click', () => {
     const newChannelName = channelNameEdit.value;
     const newChannelDescription = channelDescriptionEdit.value;
-    apiCall(`channel/${currentChannelIdchannelId}`, 'PUT', true, {
+    apiCall(`channel/${currentChannelId}`, 'PUT', true, {
         "name": newChannelName,
         "description": newChannelDescription,
     })
     .then(() => {
         loadDashboard('channel');
-        loadChannel(newChannelName, channelId);
-    })
-})
-
-const showUsersToInvite = () => {
-    apiCall('user', 'GET', true, {})
-    .then((allUsers) => {
-        return getUsersNotInChannel(allUsers.users);  
-    })
-    .then((usersNotInChannel) => {
-        const promises = [];
-        for (const user of usersNotInChannel) {
-            promises.push(getNameFromId(user))
-        }
-        return Promise.all(promises);
-    })
-    .then((data) => {
-        
-        // Used help from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-        const alphabeticallySortedData = data.sort((a, b) => {
-            const nameA = a.name.toUpperCase(); // ignore upper and lowercase
-            const nameB = b.name.toUpperCase(); // ignore upper and lowercase
-            if (nameA < nameB) {
-                return -1;
-            } else if (nameA > nameB) {
-                return 1;
-            } else { // names must be equal
-                return 0;
-            }
-
-        });
-        console.log(alphabeticallySortedData)
+        loadChannel(newChannelName, currentChannelId);
     })
     .catch((error) => {
         alert(error);
     })
-    // Get all the users (just Ids)
-    // Get their names as well
-    // Select the ones of these who aren't in the channel
-    // Put in alphabetical order and create buttons etc
-
-    /*getChannelMessages(pageNumber, pinnedView)
-    .then((messages) => {
-        const promises = []; 
-        for (const message of messages) { 
-            if (pinnedView && !message.pinned) {
-                continue;
-            }
-            promises.push(
-                getNameFromId(message.sender)
-                .then((name) => {
-                    return {
-                        "id": message.id,
-                        "message": message.message, */
-}
-
-// Now get all the users who are not in the channel
-const getUsersNotInChannel = (allUsers) => {
-    return new Promise((resolve, reject) => {
-        let usersNotInChannel = [];
-        
-        apiCall(`channel/${currentChannelId}`, 'GET', true, {})
-        .then((data) => {
-            for (const user of allUsers) {
-                if (!data.members.includes(user.id)) {
-                    usersNotInChannel.push(user.id)
-                }
-            }
-            resolve(usersNotInChannel);
-        })
-        .catch((error) => {
-            reject(error);
-        })
-        
-    })
-}
-
+})
 if (localStorage.getItem('token') === null) {
     showScreenFull('landing');
 } else {
