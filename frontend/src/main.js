@@ -9,6 +9,7 @@ const EMOJI_4 = '👍';
 const EMOJI_5 = '💪';
 
 let currentChannelId = null;
+let currentChannelName = null;
 
 const showScreenFull = (screenName) => {
     for (const screen of document.getElementsByClassName('screen-full')) {
@@ -96,7 +97,7 @@ const createChannelButton = (channelName, channelId) => {
     })
 }
 
-const createChannelMessage = (channelId, messageId, pageNumber, message, sender, formattedSentAt, editedBool, formattedEditedAt, reactCount, pinnedBool) => {
+const createChannelMessage = (messageId, pageNumber, message, sender, formattedSentAt, editedBool, formattedEditedAt, reactCount, pinnedBool) => {
 
     const newChannelMessage = document.getElementById('channel-message-template').cloneNode(true); 
     newChannelMessage.removeAttribute('id');
@@ -136,10 +137,10 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
     }
 
     newChannelMessage.querySelector('.message-delete-button').addEventListener('click', () => {
-        apiCall(`message/${channelId}/${messageId}`, 'DELETE', true, {})
+        apiCall(`message/${currentChannelId}/${messageId}`, 'DELETE', true, {})
         .then(() => {
-            loadChannelMessages(channelId, pageNumber);
-            loadPageButtons(channelId);
+            loadChannelMessages(pageNumber);
+            loadPageButtons(currentChannelId);
         })
         .catch((error) => {
             alert('ERROR: ' + error);
@@ -169,11 +170,11 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
         } else if (messageEdit.value === newChannelMessage.querySelector('.message-content').innerText) {
             alert("message is still the same as what it was before. Please update it first");
         } else {
-            apiCall(`message/${channelId}/${messageId}`, 'PUT', true, {
+            apiCall(`message/${currentChannelId}/${messageId}`, 'PUT', true, {
                 message: messageEdit.value,
             })
             .then(() => {
-                loadChannelMessages(channelId, pageNumber);
+                loadChannelMessages(pageNumber);
             })
             .catch((error) => {
                 alert(error);
@@ -186,51 +187,51 @@ const createChannelMessage = (channelId, messageId, pageNumber, message, sender,
         newChannelMessage.querySelector(`.react-${i}`).addEventListener('click', () => {
             const query = '.react-' + i; 
             if (newChannelMessage.querySelector(query).classList.contains('reacted')) {
-                callReactOrUnreact(channelId, messageId, pageNumber, i, 'unreact');
+                callReactOrUnreact(messageId, pageNumber, i, 'unreact');
             } else {
-                callReactOrUnreact(channelId, messageId, pageNumber, i, 'react');
+                callReactOrUnreact(messageId, pageNumber, i, 'react');
             }
         })                    
     }
 
     newChannelMessage.querySelector('.message-pin-or-unpin').addEventListener('click', () => {
         if (pinnedBool) {
-            callPinorUnpin(channelId, messageId, pageNumber, 'unpin');
+            callPinorUnpin(messageId, pageNumber, 'unpin');
         } else {
-            callPinorUnpin(channelId, messageId, pageNumber, 'pin');
+            callPinorUnpin(messageId, pageNumber, 'pin');
         }
     })
 }
 
-const callReactOrUnreact = (channelId, messageId, pageNumber, emojiIndex, reactOrUnreact) => {
-    apiCall(`message/${reactOrUnreact}/${channelId}/${messageId}`, 'POST', true, {
+const callReactOrUnreact = (messageId, pageNumber, emojiIndex, reactOrUnreact) => {
+    apiCall(`message/${reactOrUnreact}/${currentChannelId}/${messageId}`, 'POST', true, {
         react: eval(`EMOJI_${emojiIndex}`),
     })
     .then(() => {
-        loadChannelMessages(channelId, pageNumber);
+        loadChannelMessages(pageNumber);
     })
     .catch((error) => {
         alert(error);
     })
 }
 
-const callPinorUnpin = (channelId, messageId, pageNumber, pinOrUnpin) => {
-    apiCall(`message/${pinOrUnpin}/${channelId}/${messageId}`, 'POST', true, {})
+const callPinorUnpin = (messageId, pageNumber, pinOrUnpin) => {
+    apiCall(`message/${pinOrUnpin}/${currentChannelId}/${messageId}`, 'POST', true, {})
     .then(() => {
-        loadChannelMessages(channelId, pageNumber);
+        loadChannelMessages(currentChannelId, pageNumber);
     })
     .catch((error) => {
         alert(error);
     })
 }
 
-const createPageButton = (pageNumber, channelId) => {
+const createPageButton = (pageNumber) => {
     const newPageButton = document.getElementById('channel-page-button-template').cloneNode('true');
     newPageButton.removeAttribute('id');
     newPageButton.innerText = pageNumber;
     document.getElementById('channel-pages-container').appendChild(newPageButton);
     newPageButton.addEventListener('click', () => {
-        loadChannelMessages(channelId, pageNumber);
+        loadChannelMessages(pageNumber);
     })
 }
 
@@ -238,24 +239,23 @@ const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     showScreenChannel('post-join-channel');
 
-    currentChannelId = channelId;
-
     document.getElementById('channel-title').innerText = channelName;
-    document.getElementById('channel-screen').setAttribute('channelId', channelId);
-    document.getElementById('channel-screen').setAttribute('channelName', channelName);
     document.getElementById('details-edit').style.display = 'none';
     document.getElementById('details-non-edit').style.display = 'block';
     document.getElementById('edit-channel-details').removeAttribute("disabled");
     document.getElementById('confirm-edit-details').setAttribute("disabled", "");
     document.getElementById('cancel-edit-details').setAttribute("disabled", "");
+
+    currentChannelId = channelId;
+    currentChannelName = channelName;
     
     // Only proceed to load channel details and messages if the user is a member of the channel 
     // (if not they will be prompted to join the channnel instead)
     loadChannelDetails(channelId)
     .then((isMemberOfChannel) => {
         if (isMemberOfChannel) {
-            loadChannelMessages(channelId, 1); // 1 because we load the first page by default
-            loadPageButtons(channelId);
+            loadChannelMessages(1); // 1 because we load the first page by default
+            loadPageButtons();
         }
     })
     .catch((error) => {
@@ -265,9 +265,9 @@ const loadChannel = (channelName, channelId) => {
 
 // Load channel details if the user is a member of the channel, or prompt them to join the channel
 // if they are not a member (see catch block)
-const loadChannelDetails = (channelId) => {
+const loadChannelDetails = () => {
     return new Promise((resolve, reject) => {
-        apiCall(`channel/${channelId}`, 'GET', true, {})
+        apiCall(`channel/${currentChannelId}`, 'GET', true, {})
         .then((data) => {
             document.getElementById('channel-name-show').innerText = data.name;
             document.getElementById('channel-description-show').innerText = data.description ? data.description : 'No description given';
@@ -291,7 +291,7 @@ const loadChannelDetails = (channelId) => {
     })
 }
 
-const loadChannelMessages = (channelId, pageNumber) => {
+const loadChannelMessages = (pageNumber) => {
     
     // Get rid of previously existing channel messages from DOM
     const container = document.getElementById('channel-messages-container');
@@ -311,7 +311,7 @@ const loadChannelMessages = (channelId, pageNumber) => {
         document.getElementById('page-numbers-container').style.display = 'block';
     }
     
-    getChannelMessages(channelId, pageNumber, pinnedView)
+    getChannelMessages(pageNumber, pinnedView)
     .then((messages) => {
         const promises = []; 
         for (const message of messages) { 
@@ -339,7 +339,6 @@ const loadChannelMessages = (channelId, pageNumber) => {
     .then((details) => {
         for (const object of details) {
             createChannelMessage(
-                channelId, 
                 object.id, 
                 pageNumber, 
                 object.message, 
@@ -370,16 +369,16 @@ const countReactTypes = (reacts) => {
     return ret;
 }
 
-const getAllMessages = (channelId) => {
+const getAllMessages = () => {
     return new Promise((resolve, reject) => {
-        const recursiveFunction = (channelId, index, allMessagesUntilNow) => {
-            apiCall(`message/${channelId}?start=${index}`, 'GET', true, {})
+        const recursiveFunction = (index, allMessagesUntilNow) => {
+            apiCall(`message/${currentChannelId}?start=${index}`, 'GET', true, {})
             .then((data) => {
                 if (data.messages.length === 0) {
                     resolve(allMessagesUntilNow);
                 } else {
                     const newMessagesCombined = allMessagesUntilNow.concat(data.messages);
-                    return recursiveFunction(channelId, index + 25, newMessagesCombined);
+                    return recursiveFunction(index + 25, newMessagesCombined);
                 }
             })
             .catch((error) => {
@@ -387,31 +386,31 @@ const getAllMessages = (channelId) => {
             })
         }
     
-        recursiveFunction(channelId, 0, []);
+        recursiveFunction(0, []);
     })
 }
 
 // Returns a promise that will return messages in an array, all channel messages if pinnedView is true, 
 // (useful for showing all pinned messages) or otherwise just the 25 messages on page pageNumber
-const getChannelMessages = (channelId, pageNumber, pinnedView) => {
+const getChannelMessages = (pageNumber, pinnedView) => {
     if (pinnedView) {
-        return getAllMessages(channelId);
+        return getAllMessages();
     } else {
         return (
-            apiCall(`message/${channelId}?start=${(pageNumber - 1) * 25}`, 'GET', true, {}).then((data) => data.messages)
+            apiCall(`message/${currentChannelId}?start=${(pageNumber - 1) * 25}`, 'GET', true, {}).then((data) => data.messages)
         ) 
         
     }
 }
 
-const loadPageButtons = (channelId) => {
+const loadPageButtons = () => {
     // Get rid of previously existing page numbers from the DOM
     const container = document.getElementById('channel-pages-container');
     while(container.children.length > 1) {
         container.removeChild(container.lastChild);
     }
 
-    getAllMessages(channelId)
+    getAllMessages()
     .then((data) => {
         const totalNumberOfMessages = data.length;
         let totalNumberOfPages = Math.ceil(totalNumberOfMessages / 25 );
@@ -420,7 +419,7 @@ const loadPageButtons = (channelId) => {
         }
         document.getElementById('total-pages').innerText = totalNumberOfPages; 
         for (let pageNumber = 1; pageNumber <= totalNumberOfPages; pageNumber++) {
-            createPageButton(pageNumber, channelId);
+            createPageButton(pageNumber);
         }
     })
 }
@@ -535,13 +534,12 @@ const handleMessageSend = () => {
     if (regex.test(message)) {
         alert("You cannot send an empty string or a message containing only whitespace");
     } else {
-        const channelId = document.getElementById('channel-screen').getAttribute('channelId');
-        apiCall(`message/${channelId}`, 'POST', true, {
+        apiCall(`message/${currentChannelId}`, 'POST', true, {
             "message": message,
         })
         .then(() => {
-            loadChannelMessages(channelId, 1);
-            loadPageButtons(channelId);
+            loadChannelMessages(1);
+            loadPageButtons(currentChannelId);
         })
         .catch((error) => {
             alert(error);
@@ -557,22 +555,18 @@ document.getElementById('message-box').addEventListener('keyup', (event) => {
 })
 
 document.getElementById('join-channel-button').addEventListener('click', () => {
-    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
-    const channelName = document.getElementById('channel-screen').getAttribute('channelName');
-    apiCall(`channel/${channelId}/join`, 'POST', true, {})
+    apiCall(`channel/${currentChannelId}/join`, 'POST', true, {})
     .then(() => {
-        loadChannel(channelName, channelId);
+        loadChannel(currentChannelName, currentChannelId);
 
     })
     .catch((error) => {
         alert(error);
     })
-
 })
 
 document.getElementById('leave-channel-button').addEventListener('click', () => {
-    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
-    apiCall(`channel/${channelId}/leave`, 'POST', true, {})
+    apiCall(`channel/${currentChannelId}/leave`, 'POST', true, {})
     .then(() => {
         loadDashboard('channel');
         showScreenChannel('pre-join-channel');
@@ -594,7 +588,7 @@ document.getElementById('hide-channel-details').addEventListener('click', () => 
 })
 
 document.getElementById('default-or-pinned').addEventListener('change', () => {
-    loadChannelMessages(currentChannelId, 1)
+    loadChannelMessages(1)
 })
 
 const editButton = document.getElementById('edit-channel-details');
@@ -621,10 +615,9 @@ cancelButton.addEventListener('click', () => {
 })
 
 confirmButton.addEventListener('click', () => {
-    const channelId = document.getElementById('channel-screen').getAttribute('channelId');
     const newChannelName = channelNameEdit.value;
     const newChannelDescription = channelDescriptionEdit.value;
-    apiCall(`channel/${channelId}`, 'PUT', true, {
+    apiCall(`channel/${currentChannelIdchannelId}`, 'PUT', true, {
         "name": newChannelName,
         "description": newChannelDescription,
     })
