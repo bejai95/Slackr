@@ -13,23 +13,23 @@ let currentChannelName = null;
 
 const showScreenFull = (screenName) => {
     for (const screen of document.getElementsByClassName('screen-full')) {
-        screen.style.display = 'none';
+        screen.classList.add('is-hidden');
 	}
-	document.getElementById(`${screenName}-screen`).style.display = 'block';
+	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
 }
 
 const showScreenDashboard = (screenName) => {
     for (const screen of document.getElementsByClassName('screen-dashboard')) {
-        screen.style.display = 'none';
+        screen.classList.add('is-hidden');
 	}
-	document.getElementById(`${screenName}-screen`).style.display = 'block';
+	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
 }
 
 const showScreenChannel = (screenName) => {
     for (const screen of document.getElementsByClassName('screen-channel')) {
-        screen.style.display = 'none';
+        screen.classList.add('is-hidden');
 	}
-	document.getElementById(`${screenName}-screen`).style.display = 'block';
+	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
 }
 
 const apiCall = (path, method, authorizedBool, body) => {
@@ -75,7 +75,7 @@ const loadDashboard = (screenName) => {
 
             // Only display public channels and private channels they have joined
             if (!channel.private || channel.members.includes(parseInt(localStorage.getItem('userId')))) {
-                createChannelButton(channel.name, channel.id); 
+                createChannelButton(channel.name, channel.id, channel.private); 
             }
         }
     })
@@ -92,11 +92,18 @@ const loadDashboard = (screenName) => {
     })
 }
 
-const createChannelButton = (channelName, channelId) => {
+const createChannelButton = (channelName, channelId, privateBool) => {
     const newChannelButton = document.getElementById('channel-button-template').cloneNode(true);
     newChannelButton.removeAttribute('id');
     newChannelButton.querySelector('.content').innerText = channelName;
     document.getElementById('channel-buttons-list').appendChild(newChannelButton);
+    
+    if (privateBool) {
+        newChannelButton.classList.add('has-background-warning-light');
+    } else {
+        newChannelButton.classList.add('has-background-primary-light');
+    }
+    
     newChannelButton.addEventListener('click', () => {
         loadChannel(channelName, channelId);
     })
