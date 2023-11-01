@@ -11,27 +11,7 @@ const EMOJI_5 = '💪';
 let currentChannelId = null;
 let currentChannelName = null;
 
-const showScreenFull = (screenName) => {
-    for (const screen of document.getElementsByClassName('screen-full')) {
-        screen.classList.add('is-hidden');
-	}
-	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
-}
-
-const showScreenDashboard = (screenName) => {
-    for (const screen of document.getElementsByClassName('screen-dashboard')) {
-        screen.classList.add('is-hidden');
-	}
-	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
-}
-
-const showScreenChannel = (screenName) => {
-    for (const screen of document.getElementsByClassName('screen-channel')) {
-        screen.classList.add('is-hidden');
-	}
-	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
-}
-
+// Extremely useful function which returns a promise fetching from the API. 
 const apiCall = (path, method, authorizedBool, body) => {
     return new Promise((resolve, reject) => {
         fetch('http://localhost:' + BACKEND_PORT + '/' + path, {
@@ -56,13 +36,39 @@ const apiCall = (path, method, authorizedBool, body) => {
     });
 };
 
+// Extremely useful function which displays the error modal with a given error 
 const showErrorModal = (error) => {
     document.getElementById('error-modal').classList.add('is-active')
     document.getElementById('error-modal-content').innerText = error;
 }
 
+// Show a 'full screen', hide all other screens
+const showScreenFull = (screenName) => {
+    for (const screen of document.getElementsByClassName('screen-full')) {
+        screen.classList.add('is-hidden');
+	}
+	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
+}
+
+// Show a dashboard screen, hide all other screens
+const showScreenDashboard = (screenName) => {
+    for (const screen of document.getElementsByClassName('screen-dashboard')) {
+        screen.classList.add('is-hidden');
+	}
+	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
+}
+
+// Show a channel screen, hide all other screens
+const showScreenChannel = (screenName) => {
+    for (const screen of document.getElementsByClassName('screen-channel')) {
+        screen.classList.add('is-hidden');
+	}
+	document.getElementById(`${screenName}-screen`).classList.remove('is-hidden');
+}
+
 const loadDashboard = (screenName) => {
-    // Get rid of previously existing channel buttons from DOM
+    // Get rid of previously existing channel buttons from DOM 
+    // (both private and public channel lists need to be cleared)
     const containerPublic = document.getElementById('public-channel-buttons-list');
     while(containerPublic.children.length > 1) {
         containerPublic.removeChild(containerPublic.lastChild);
@@ -96,6 +102,7 @@ const loadDashboard = (screenName) => {
     })
 }
 
+// Create a channel button
 const createChannelButton = (channelName, channelId, privateBool) => {
     const newChannelButton = document.getElementById('channel-button-template').cloneNode(true);
     newChannelButton.removeAttribute('id');
@@ -112,6 +119,7 @@ const createChannelButton = (channelName, channelId, privateBool) => {
     })
 }
 
+// Create a channel message
 const createChannelMessage = (messageId, pageNumber, message, sender, formattedSentAt, editedBool, formattedEditedAt, reactCount, pinnedBool) => {
 
     const newChannelMessage = document.getElementById('channel-message-template').cloneNode(true); 
@@ -151,6 +159,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
         newChannelMessage.querySelector('.message-pin-or-unpin').innerText = 'Unpin';
     }
 
+    // Event listener for if delete is pressed on this button
     newChannelMessage.querySelector('.message-delete-button').addEventListener('click', () => {
         apiCall(`message/${currentChannelId}/${messageId}`, 'DELETE', true, {})
         .then(() => {
@@ -162,6 +171,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
         })
     })
 
+    // Event listener for if edit is pressed on this button
     newChannelMessage.querySelector('.message-edit-button').addEventListener('click', () => {
         newChannelMessage.querySelector('.message-edit-button').setAttribute("disabled", "");
         newChannelMessage.querySelector('.message-content').classList.add('is-hidden');
@@ -169,6 +179,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
         newChannelMessage.querySelector('.message-edit-text').value = message;
     })
 
+    // Cancel edit
     newChannelMessage.querySelector('.message-edit-cancel').addEventListener('click', () => {
         newChannelMessage.querySelector('.message-edit-button').removeAttribute("disabled");
         newChannelMessage.querySelector('.message-edit-tools').classList.add('is-hidden');;
@@ -176,6 +187,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
 
     })
 
+    // Confirm edit
     newChannelMessage.querySelector('.message-edit-confirm').addEventListener('click', () => {
         const regex = /^\s*$/; 
         const messageEdit = newChannelMessage.querySelector('.message-edit-text');
@@ -209,6 +221,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
         })                    
     }
 
+    // Event listener for if pin or unpin is pressed on this message
     newChannelMessage.querySelector('.message-pin-or-unpin').addEventListener('click', () => {
         if (pinnedBool) {
             callPinorUnpin(messageId, pageNumber, 'unpin');
@@ -218,6 +231,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
     })
 }
 
+// Wrapper function
 const callReactOrUnreact = (messageId, pageNumber, emojiIndex, reactOrUnreact) => {
     apiCall(`message/${reactOrUnreact}/${currentChannelId}/${messageId}`, 'POST', true, {
         react: eval(`EMOJI_${emojiIndex}`),
@@ -230,6 +244,7 @@ const callReactOrUnreact = (messageId, pageNumber, emojiIndex, reactOrUnreact) =
     })
 }
 
+// Wrapper function
 const callPinorUnpin = (messageId, pageNumber, pinOrUnpin) => {
     apiCall(`message/${pinOrUnpin}/${currentChannelId}/${messageId}`, 'POST', true, {})
     .then(() => {
@@ -240,6 +255,7 @@ const callPinorUnpin = (messageId, pageNumber, pinOrUnpin) => {
     })
 }
 
+// Create a new page button which can be pressed to go to that page of messages
 const createPageButton = (pageNumber) => {
     const newPageButton = document.getElementById('channel-page-button-template').cloneNode('true');
     newPageButton.removeAttribute('id');
@@ -252,6 +268,7 @@ const createPageButton = (pageNumber) => {
     })
 }
 
+// Create a new checkbox with a person's name attached, used for inviting users to chanels
 const createInviteCheckbox = (userName, userId) => {
     const newInviteCheckbox = document.getElementById('invite-user-checkbox-template').cloneNode('true');
     newInviteCheckbox.removeAttribute('id');
@@ -260,6 +277,7 @@ const createInviteCheckbox = (userName, userId) => {
     document.getElementById('invite-user-checkbox-container').appendChild(newInviteCheckbox);
 }
 
+// Extremely important function, loads a channel
 const loadChannel = (channelName, channelId) => {
     showScreenDashboard('channel');
     showScreenChannel('post-join-channel');
@@ -271,7 +289,7 @@ const loadChannel = (channelName, channelId) => {
     document.getElementById('confirm-edit-details').classList.add('is-hidden');
     document.getElementById('cancel-edit-details').classList.add('is-hidden');
 
-    currentChannelId = channelId;
+    currentChannelId = channelId; // Setting global functions
     currentChannelName = channelName;
     
     // Only proceed to load channel details and messages if the user is a member of the channel 
@@ -316,6 +334,7 @@ const loadChannelDetails = () => {
     })
 }
 
+// Load the messages in a channel (extremely important function)
 const loadChannelMessages = (pageNumber) => {
     
     // Get rid of previously existing channel messages from DOM
@@ -380,6 +399,7 @@ const loadChannelMessages = (pageNumber) => {
     })
 }
 
+// Simple function to count the number of each type of react
 const countReactTypes = (reacts) => {
     const ret = {};
     ret.currentUserReacts = [];
@@ -393,6 +413,7 @@ const countReactTypes = (reacts) => {
     return ret;
 }
 
+// 'Recursive promise calling' function which gets all of the messages combined
 const getAllMessages = () => {
     return new Promise((resolve, reject) => {
         const recursiveFunction = (index, allMessagesUntilNow) => {
@@ -427,6 +448,7 @@ const getChannelMessages = (pageNumber, pinnedView) => {
     }
 }
 
+// Function to load the page buttons
 const loadPageButtons = (pageNumber) => {
     // Get rid of previously existing page numbers from the DOM
     const container = document.getElementById('channel-pages-container');
@@ -446,11 +468,11 @@ const loadPageButtons = (pageNumber) => {
         }
 
         document.getElementById(`page-${pageNumber}-button`).classList.add('is-current');
-
-        
     })
 }
 
+
+// Given an id, get the associated name
 const getNameFromId = (id) => {
     return new Promise((resolve, reject) => {
         apiCall(`user/${id}`, 'GET', true, {})
