@@ -116,11 +116,11 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
     newChannelMessage.querySelector('.message-content').innerText = message;
     newChannelMessage.querySelector('.message-sender-name').innerText = sender;
     newChannelMessage.querySelector('.message-timestamp').innerText = formattedSentAt;
-    newChannelMessage.querySelector('.message-edit-tools').style.display = 'none';
+    newChannelMessage.querySelector('.message-edit-tools').classList.add('is-hidden');
     document.getElementById('channel-messages-container').appendChild(newChannelMessage);
 
     if (editedBool === false) {
-        newChannelMessage.querySelector('.message-edit-info').style.display = 'none';
+        newChannelMessage.querySelector('.message-edit-info').classList.add('is-hidden');
     } else {
         newChannelMessage.querySelector('.message-edit-timestamp').innerText = formattedEditedAt;
     }
@@ -161,15 +161,15 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
 
     newChannelMessage.querySelector('.message-edit-button').addEventListener('click', () => {
         newChannelMessage.querySelector('.message-edit-button').setAttribute("disabled", "");
-        newChannelMessage.querySelector('.message-content').style.display = 'none';
-        newChannelMessage.querySelector('.message-edit-tools').style.display = 'block';
+        newChannelMessage.querySelector('.message-content').classList.add('is-hidden');
+        newChannelMessage.querySelector('.message-edit-tools').classList.remove('is-hidden');
         newChannelMessage.querySelector('.message-edit-text').value = message;
     })
 
     newChannelMessage.querySelector('.message-edit-cancel').addEventListener('click', () => {
         newChannelMessage.querySelector('.message-edit-button').removeAttribute("disabled");
-        newChannelMessage.querySelector('.message-edit-tools').style.display = 'none';
-        newChannelMessage.querySelector('.message-content').style.display = 'block';
+        newChannelMessage.querySelector('.message-edit-tools').classList.add('is-hidden');;
+        newChannelMessage.querySelector('.message-content').classList.remove('is-hidden');
 
     })
 
@@ -271,9 +271,9 @@ const loadChannel = (channelName, channelId) => {
     showScreenChannel('post-join-channel');
 
     document.getElementById('channel-title').innerText = channelName;
-    document.getElementById('details-edit').style.display = 'none';
-    document.getElementById('details-non-edit').style.display = 'block';
-    document.getElementById('invite-users').style.display = 'none';
+    document.getElementById('details-edit').classList.add('is-hidden');
+    document.getElementById('details-non-edit').classList.remove('is-hidden');
+    document.getElementById('invite-users').classList.add('is-hidden');
     document.getElementById('edit-channel-details').removeAttribute("disabled");
     document.getElementById('confirm-edit-details').setAttribute("disabled", "");
     document.getElementById('cancel-edit-details').setAttribute("disabled", "");
@@ -338,9 +338,9 @@ const loadChannelMessages = (pageNumber) => {
     // If the pinned option is selected, need to load the messages differently
     const pinnedView = (document.getElementById('default-or-pinned').value === 'pinned-view');
     if (pinnedView) {
-        document.getElementById('page-numbers-container').style.display = 'none';
+        document.getElementById('page-numbers-container').classList.add('is-hidden');
     } else {
-        document.getElementById('page-numbers-container').style.display = 'block';
+        document.getElementById('page-numbers-container').classList.remove('is-hidden');
     }
     
     getChannelMessages(pageNumber, pinnedView)
@@ -678,13 +678,11 @@ document.getElementById('leave-channel-button').addEventListener('click', () => 
 
 const showButton = document.getElementById('show-channel-details');
 showButton.addEventListener('click', () => {
-    document.getElementById('channel-details').style.display = 'block';
-    showButton.style.display = 'none';
+    document.getElementById('channel-details').classList.add('is-active');
 })
 
 document.getElementById('hide-channel-details').addEventListener('click', () => {
-    document.getElementById('channel-details').style.display = 'none';
-    showButton.style.display = 'inline-block';
+    document.getElementById('channel-details').classList.remove('is-active');
 })
 
 document.getElementById('default-or-pinned').addEventListener('change', () => {
@@ -693,7 +691,7 @@ document.getElementById('default-or-pinned').addEventListener('change', () => {
 
 document.getElementById('show-invite-users').addEventListener('click', () => {
     getUsersToInvite(); 
-    document.getElementById('invite-users').style.display = 'block';
+    document.getElementById('invite-users').classList.remove('is-hidden');
 });
 
 const editButton = document.getElementById('edit-channel-details');
@@ -705,8 +703,8 @@ editButton.addEventListener('click', () => {
     editButton.setAttribute("disabled", "");
     cancelButton.removeAttribute("disabled");
     confirmButton.removeAttribute("disabled");
-    document.getElementById('details-non-edit').style.display = 'none';
-    document.getElementById('details-edit').style.display = 'block';
+    document.getElementById('details-non-edit').classList.add('is-hidden');
+    document.getElementById('details-edit').classList.remove('is-hidden');
     document.getElementById('channel-name-edit').value = document.getElementById('channel-name-show').innerText;
     document.getElementById('channel-description-edit').value = document.getElementById('channel-description-show').innerText;
 })
@@ -715,8 +713,8 @@ cancelButton.addEventListener('click', () => {
     editButton.removeAttribute("disabled");
     cancelButton.setAttribute("disabled", "");
     confirmButton.setAttribute("disabled", ""); 
-    document.getElementById('details-non-edit').style.display = 'block';
-    document.getElementById('details-edit').style.display = 'none';
+    document.getElementById('details-non-edit').classList.remove('is-hidden');
+    document.getElementById('details-edit').classList.add('is-hidden');
 })
 
 confirmButton.addEventListener('click', () => {
@@ -727,6 +725,7 @@ confirmButton.addEventListener('click', () => {
         "description": newChannelDescription,
     })
     .then(() => {
+        document.getElementById('channel-details').classList.remove('is-active');
         loadDashboard('channel');
         loadChannel(newChannelName, currentChannelId);
     })
@@ -734,6 +733,8 @@ confirmButton.addEventListener('click', () => {
         showErrorModal(error);
     })
 })
+
+
 if (localStorage.getItem('token') === null) {
     showScreenFull('login');
 } else {

@@ -113,46 +113,44 @@
                         </div>
                     </div>
                     
-                    <div class="modal is-active">
+                    <div id="channel-details" class="modal">
                         <div class="modal-background"></div>
                         <div class="modal-card">
                             <header class="modal-card-head">
-                                <p class="modal-card-title">Modal title</p>
-                                <button class="delete" aria-label="close"></button>
+                                <p class="modal-card-title">Channel Details</p>
+                                <button id="hide-channel-details" class="delete" aria-label="close"></button>
                             </header>
                             <section class="modal-card-body">
-                                <!-- Content ... -->
+                                <div id="details-non-edit">
+                                    <p>Channel name: <span id="channel-name-show"></span> </p>
+                                    <p>Channel description: <span id="channel-description-show"></span></p>
+                                </div>
+                                <div id="details-edit">
+                                    <div class="field">
+                                        <label class="label" for="channel-name-edit">New channel name</label>
+                                        <div class="control">
+                                            <input class="input" type="text" id="channel-name-edit" placeholder="New channel name">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label" for="channel-description-edit">New channel Description</label>
+                                        <div class="control">
+                                            <textarea class="textarea" id="channel-description-edit" placeholder="Channel description (optional)"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p>Channel visibility: <span id="channel-visibility"></span></p>
+                                <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
+                                <p>Channel creator: <span id="channel-creator"></span></p>
                             </section>
                             <footer class="modal-card-foot">
-                                <button class="button is-success">Save changes</button>
-                                <button class="button">Cancel</button>
+                                <button id="edit-channel-details" class="button is-danger is-responsive">Edit channel details</button>
+                                <button id="cancel-edit-details" class="button is-link is-responsive">Cancel edit</button>
+                                <button id="confirm-edit-details" class="button is-primary is-responsive">Confirm edit</button>
                             </footer>
                         </div>
                     </div>
                     
-                    
-                    
-                    
-                    <div id="channel-details">
-                        <h3>Channel details</h3>
-                        <div id="details-non-edit">
-                            <p>Channel name: <span id="channel-name-show"></span> </p>
-                            <p>Channel description: <span id="channel-description-show"></span></p>
-                        </div>
-                        <div id="details-edit">
-                            <label for="channel-name-edit">New channel name: </label>
-                            <input type="text" id="channel-name-edit"> <br>
-                            <label for="channel-description-edit">New channel Description: </label> <br>
-                            <textarea id="channel-description-edit" placeholder="Channel description (optional)" cols="36" rows="10"></textarea> <br>
-                        </div>
-                        <p>Channel visibility: <span id="channel-visibility"></span></p>
-                        <p>Creation timestamp: <span id="channel-creation-timestamp"></span></p>
-                        <p>Channel creator: <span id="channel-creator"></span></p>
-                        <button id="edit-channel-details">Edit channel details</button>
-                        <button id="cancel-edit-details">Cancel edit</button>
-                        <button id="confirm-edit-details">Confirm edit</button>
-                        <button id="hide-channel-details">Hide channel details</button>
-                    </div>
 
 
 
