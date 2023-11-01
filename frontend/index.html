@@ -12,6 +12,7 @@
 <body class="m-3">
     <h1 class="is-size-1 has-text-centered has-text-weight-bold">Slackr</h1>
     
+    <!-- Login screen -->
     <section id="login-screen" class="screen-full">
         <h2 class="is-size-3 has-text-weight-bold">Log in</h2>
         <div class="field mt-6">
@@ -30,6 +31,7 @@
         <p>Don't have an account? <a id="register-link">Register</a></p>
     </section>
     
+    <!-- Register screen -->
     <section id="register-screen" class="screen-full">
         <h2 class="is-size-3 has-text-weight-bold">Register</h2>
         <div class="field mt-6">
@@ -60,6 +62,7 @@
         <p>Already have an account? <a id="login-link">Log in</a></p>
     </section>
 
+    <!-- Modal used for all errors -->
     <div id="error-modal" class="modal">
         <div class="modal-background"></div>
         <div class="modal-card">
@@ -73,7 +76,9 @@
         </div>
     </div>
     
+    <!-- Main dashboard -->
     <section id="dashboard-screen" class="screen-full columns">
+        <!-- Menu bar on the left which displays all channels -->
         <aside id="select-channel" class="menu column is-one-fifth is-clipped">
             <p class="menu-label">Public channels</p>
             <ul id="public-channel-buttons-list" class="menu-list">
@@ -93,11 +98,13 @@
                 <li><a id="logout-button">Log out</a></li>
             </ul>
         </aside>
-
+        
+        <!-- Content to the right of the menu bar -->
         <div id="main-content" class="column">
             <div id="welcome-screen" class="screen-dashboard">
                 <p class="is-size-4">Welcome. Please choose a channel.</p>
             </div>
+            <!-- Channel screen -->
             <div id="channel-screen" class="screen-dashboard">
                 <h2 class="is-size-3 has-text-weight-bold mb-3" id="channel-title">Channel title</h2>
                 <div id="pre-join-channel-screen" class="screen-channel">
@@ -119,6 +126,7 @@
                         </div>
                     </div>
                     
+                    <!-- Modal used to display/edit channel details -->
                     <div id="channel-details" class="modal">
                         <div class="modal-background"></div>
                         <div class="modal-card">
@@ -157,6 +165,7 @@
                         </div>
                     </div>
 
+                    <!-- Modal used to invite other users to the channel -->
                     <div id="invite-users" class="modal">
                         <div class="modal-background"></div>
                         <div class="modal-card">
@@ -178,11 +187,13 @@
                         </div>
                     </div>
                     
+                    <!-- Messages -->
                     <div id="channel-messages-container" class="has-background-light mt-3">
+                        <!-- Message template -->
                         <div id="channel-message-template" class="channel-message">
                             <div class="message-outer-flex-container">
                                 <div class="message-inner-flex-container">
-                                    <img class="image is-48x48" src="assets/default.png" alt="Default">
+                                    <img class="image is-48x48" src="assets/default.png" alt="Default-profile-pic">
                                     <div>
                                         <p class="message-sender-name is-size-7 has-text-weight-light">Sender</p>
                                         <p class="message-timestamp is-size-7 has-text-weight-light">Timestamp</p>
@@ -213,6 +224,7 @@
                         </div>
                     </div>
                     
+                    <!-- Message pages and message box to send message -->
                     <div id="page-numbers-container" class=" mt-3">
                         <nav class="pagination" role="navigation" aria-label="pagination">
                             <ul id="channel-pages-container" class="pagination-list">
@@ -222,12 +234,12 @@
                             </ul>
                         </nav>
                     </div>
-                    
                     <textarea class="textarea mt-3" id="message-box" placeholder="message" rows="2"></textarea>
                     <button id="message-send-button" class="button is-primary mt-3">Send</button>
                 </div>
             </div>
 
+            <!-- Form to create a new channel -->
             <div id="create-channel-form-screen" class="screen-dashboard">
                 <h2 class="is-size-3 has-text-weight-bold">Create a new channel</h2>
                 <div class="field mt-3">
@@ -236,14 +248,12 @@
                         <input type="text" id="create-channel-name" class="input" placeholder="Channel name">
                     </div>
                 </div>
-
                 <div class="field">
                     <label class="label" for="create-channel-description">Channel description (optional)</label>
                     <div class="control">
                       <textarea id="create-channel-description" class="textarea" placeholder="Channel description (optional)"></textarea>
                     </div>
                   </div>
-
                 <div class="field">
                     <label for="create-channel-visibilty" class="label">Channel visibility</label>
                     <div class="control">
@@ -259,7 +269,6 @@
             </div>
         </div>
     </section>
-    
     <script type="module" src="src/main.js"></script>
 </body>
 </html>
