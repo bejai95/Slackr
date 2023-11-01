@@ -17,18 +17,17 @@
 .channel-message {
     margin-bottom: 30px;
 }
-img {
-    width: 50px;
-    height: 50px;
-}
 
 .message-outer-flex-container {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .message-inner-flex-container {
     display: flex;
+    align-items: center;
+    width: 60vw;
 }
 
 #top-options-flex {
@@ -37,13 +36,19 @@ img {
 }
 
 #channel-messages-container {
-    height: 300px;
-    overflow: scroll;
+    height: 40vh;
+    overflow-y: scroll;
     display: flex;
     flex-direction: column-reverse;
     
 }
 
 .reacted {
-    background-color: gold;
+    color: white;
+    background-color: #485fc7;
+}
+
+.message-content {
+    inline-size: 65vw;
+    word-wrap: break-word;
 }

@@ -63,9 +63,13 @@ const showErrorModal = (error) => {
 
 const loadDashboard = (screenName) => {
     // Get rid of previously existing channel buttons from DOM
-    const container = document.getElementById('channel-buttons-list');
-    while(container.children.length > 1) {
-        container.removeChild(container.lastChild);
+    const containerPublic = document.getElementById('public-channel-buttons-list');
+    while(containerPublic.children.length > 1) {
+        containerPublic.removeChild(containerPublic.lastChild);
+    }
+    const containerPrivate = document.getElementById('private-channel-buttons-list');
+    while(containerPrivate.children.length > 1) {
+        containerPrivate.removeChild(containerPrivate.lastChild);
     }
     
     showScreenDashboard(screenName);
@@ -96,12 +100,11 @@ const createChannelButton = (channelName, channelId, privateBool) => {
     const newChannelButton = document.getElementById('channel-button-template').cloneNode(true);
     newChannelButton.removeAttribute('id');
     newChannelButton.querySelector('.content').innerText = channelName;
-    document.getElementById('channel-buttons-list').appendChild(newChannelButton);
     
     if (privateBool) {
-        newChannelButton.classList.add('has-background-warning-light');
+        document.getElementById('private-channel-buttons-list').appendChild(newChannelButton);
     } else {
-        newChannelButton.classList.add('has-background-primary-light');
+        document.getElementById('public-channel-buttons-list').appendChild(newChannelButton);
     }
     
     newChannelButton.addEventListener('click', () => {
@@ -152,7 +155,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
         apiCall(`message/${currentChannelId}/${messageId}`, 'DELETE', true, {})
         .then(() => {
             loadChannelMessages(pageNumber);
-            loadPageButtons(currentChannelId);
+            loadPageButtons(pageNumber);
         })
         .catch((error) => {
             showErrorModal(error);
@@ -180,7 +183,7 @@ const createChannelMessage = (messageId, pageNumber, message, sender, formattedS
         if (regex.test(messageEdit.value)) {
             showErrorModal("You cannot update to an empty string or a message containing only whitespace");
         } else if (messageEdit.value === newChannelMessage.querySelector('.message-content').innerText) {
-            showErrorModal("message is still the same as what it was before. Please update it first")
+            showErrorModal("Message is still the same as what it was before. Please update it first");
         } else {
             apiCall(`message/${currentChannelId}/${messageId}`, 'PUT', true, {
                 message: messageEdit.value,
@@ -240,10 +243,12 @@ const callPinorUnpin = (messageId, pageNumber, pinOrUnpin) => {
 const createPageButton = (pageNumber) => {
     const newPageButton = document.getElementById('channel-page-button-template').cloneNode('true');
     newPageButton.removeAttribute('id');
-    newPageButton.innerText = pageNumber;
+    newPageButton.querySelector('.page-number').id = (`page-${pageNumber}-button`);
+    newPageButton.querySelector('.page-number').innerText = pageNumber;
     document.getElementById('channel-pages-container').appendChild(newPageButton);
     newPageButton.addEventListener('click', () => {
         loadChannelMessages(pageNumber);
+        loadPageButtons(pageNumber);
     })
 }
 
@@ -287,7 +292,7 @@ const loadChannel = (channelName, channelId) => {
     .then((isMemberOfChannel) => {
         if (isMemberOfChannel) {
             loadChannelMessages(1); // 1 because we load the first page by default
-            loadPageButtons();
+            loadPageButtons(1);
         }
     })
     .catch((error) => {
@@ -333,7 +338,6 @@ const loadChannelMessages = (pageNumber) => {
 
     document.getElementById('message-box').value = "";
     document.getElementById('message-box').focus(); // Auto-focus on the message input box so user can start typing immediately
-    document.getElementById('page-number').innerText = pageNumber;
 
     // If the pinned option is selected, need to load the messages differently
     const pinnedView = (document.getElementById('default-or-pinned').value === 'pinned-view');
@@ -435,7 +439,7 @@ const getChannelMessages = (pageNumber, pinnedView) => {
     }
 }
 
-const loadPageButtons = () => {
+const loadPageButtons = (pageNumber) => {
     // Get rid of previously existing page numbers from the DOM
     const container = document.getElementById('channel-pages-container');
     while(container.children.length > 1) {
@@ -449,10 +453,13 @@ const loadPageButtons = () => {
         if (totalNumberOfPages === 0) {
             totalNumberOfPages = 1;
         }
-        document.getElementById('total-pages').innerText = totalNumberOfPages; 
         for (let pageNumber = 1; pageNumber <= totalNumberOfPages; pageNumber++) {
             createPageButton(pageNumber);
         }
+
+        document.getElementById(`page-${pageNumber}-button`).classList.add('is-current');
+
+        
     })
 }
 
@@ -639,7 +646,7 @@ const handleMessageSend = () => {
         })
         .then(() => {
             loadChannelMessages(1);
-            loadPageButtons(currentChannelId);
+            loadPageButtons(1);
         })
         .catch((error) => {
             showErrorModal(error);
@@ -687,6 +694,7 @@ document.getElementById('hide-channel-details').addEventListener('click', () => 
 
 document.getElementById('default-or-pinned').addEventListener('change', () => {
     loadChannelMessages(1) // Load the first page of messages
+    loadPageButtons(1);
 })
 
 document.getElementById('show-invite-users').addEventListener('click', () => {

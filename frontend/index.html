@@ -75,8 +75,14 @@
     
     <section id="dashboard-screen" class="screen-full columns">
         <aside id="select-channel" class="menu column is-one-fifth is-clipped">
-            <p class="menu-label">Channels</p>
-            <ul id="channel-buttons-list" class="menu-list">
+            <p class="menu-label">Public channels</p>
+            <ul id="public-channel-buttons-list" class="menu-list">
+                <li id="channel-button-template">
+                    <a class="content">Template</a>
+                </li>
+            </ul>
+            <p class="menu-label">Private channels</p>
+            <ul id="private-channel-buttons-list" class="menu-list">
                 <li id="channel-button-template">
                     <a class="content">Template</a>
                 </li>
@@ -93,7 +99,7 @@
                 <p class="is-size-4">Welcome. Please choose a channel.</p>
             </div>
             <div id="channel-screen" class="screen-dashboard">
-                <h2 class="is-size-3 has-text-weight-bold" id="channel-title">Channel title</h2>
+                <h2 class="is-size-3 has-text-weight-bold mb-3" id="channel-title">Channel title</h2>
                 <div id="pre-join-channel-screen" class="screen-channel">
                     <p class="is-size-4 mt-3">You are not currently a member of this channel. Would you like to join?</p>
                     <button class="button is-primary" id="join-channel-button">Join channel</button>
@@ -150,11 +156,6 @@
                             </footer>
                         </div>
                     </div>
-                    
-
-
-
-
 
                     <div id="invite-users">
                         <h3>Invite users to channel</h3>
@@ -164,50 +165,53 @@
                         </div>
                     </div>
                     
-                    <h3>Channel messages:</h3>
-                    <div id="channel-messages-container">
+                    <div id="channel-messages-container" class="has-background-light mt-3">
                         <div id="channel-message-template" class="channel-message">
                             <div class="message-outer-flex-container">
                                 <div class="message-inner-flex-container">
-                                    <img src="assets/default.png" alt="Default">
+                                    <img class="image is-48x48" src="assets/default.png" alt="Default">
                                     <div>
-                                        <p class="message-sender-name">Sender</p>
-                                        <p class="message-timestamp">Timestamp</p>
-                                        <p class="message-edit-info">Edited on <span class="message-edit-timestamp"></span></p>
-                                        <p class="message-content">Message</p>
+                                        <p class="message-sender-name is-size-7 has-text-weight-light">Sender</p>
+                                        <p class="message-timestamp is-size-7 has-text-weight-light">Timestamp</p>
+                                        <p class="message-edit-info is-size-7 has-text-weight-light">Edited on <span class="message-edit-timestamp"></span></p>
+                                        <p class="message-content is-size-5">Message</p>
                                         <div class="message-edit-tools">
                                             <textarea class="message-edit-text" cols="60" rows="5" placeholder="Edit message"></textarea> <br>
                                             <button class="message-edit-cancel">Cancel</button>
                                             <button class="message-edit-confirm">Confirm</button>
                                         </div>
                                         <div class="reacts">
-                                            <button class="react-1">❤️: <span class="count-1">0</span></button>
-                                            <button class="react-2">😂: <span class="count-2">0</span></button>
-                                            <button class="react-3">😭: <span class="count-3">0</span></button>
-                                            <button class="react-4">👍: <span class="count-4">0</span></button>
-                                            <button class="react-5">💪: <span class="count-5">0</span></button> 
+                                            <button class="react-1 button  is-responsive">❤️: <span class="count-1">0</span></button>
+                                            <button class="react-2 button  is-responsive">😂: <span class="count-2">0</span></button>
+                                            <button class="react-3 button  is-responsive">😭: <span class="count-3">0</span></button>
+                                            <button class="react-4 button  is-responsive">👍: <span class="count-4">0</span></button>
+                                            <button class="react-5 button  is-responsive">💪: <span class="count-5">0</span></button> 
                                         </div>
                                         
                                         
                                     </div>
                                 </div>
                                 <div>
-                                    <button class="message-delete-button">Delete</button> 
-                                    <button class="message-edit-button">Edit</button>
-                                    <button class="message-pin-or-unpin">Pin</button>
-
+                                    <button class="message-delete-button button is-small is-responsive">Delete</button> <br> 
+                                    <button class="message-edit-button button is-small is-responsive">Edit</button> <br>
+                                    <button class="message-pin-or-unpin button is-small is-responsive">Pin</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div id="page-numbers-container">
-                        <p>Currently showing page <span id="page-number"></span> of <span id="total-pages"></span></p>
-                        <div id="channel-pages-container">
-                            <button id="channel-page-button-template"></button>
-                        </div>
+                    
+                    <div id="page-numbers-container" class=" mt-3">
+                        <nav class="pagination" role="navigation" aria-label="pagination">
+                            <ul id="channel-pages-container" class="pagination-list">
+                                <li id="channel-page-button-template">
+                                    <a class="page-number pagination-link">Template</a>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
-                    <textarea id="message-box" cols="60" rows="5" placeholder="message"></textarea> <br>
-                    <button id="message-send-button">Send</button>
+                    
+                    <textarea class="textarea  mt-3" id="message-box" placeholder="message"></textarea>
+                    <button id="message-send-button" class="button is-primary mt-3">Send</button>
                 </div>
             </div>
 
