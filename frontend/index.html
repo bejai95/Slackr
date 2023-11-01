@@ -157,11 +157,24 @@
                         </div>
                     </div>
 
-                    <div id="invite-users">
-                        <h3>Invite users to channel</h3>
-                        <p>Note that inviting a user will add them automatically.</p>
-                        <div id="invite-user-buttons-container">
-                            <button id="invite-user-button-template">Template</button>
+                    <div id="invite-users" class="modal">
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title">Invite users to channel</p>
+                                <button id="hide-invite-users" class="delete" aria-label="close"></button>
+                            </header>
+                            <section class="modal-card-body">
+                                <p>Note that inviting a user will add them automatically.</p>
+                                <div id="invite-user-checkbox-container">
+                                    <div id="invite-user-checkbox-template">
+                                        <span class="name">Name: </span> <input class="checkbox" type="checkbox">
+                                    </div>
+                                </div>
+                            </section>
+                            <footer class="modal-card-foot">
+                                <button id="invite-submit" class="button is-primary">Invite</button>
+                            </footer>
                         </div>
                     </div>
                     
@@ -176,9 +189,11 @@
                                         <p class="message-edit-info is-size-7 has-text-weight-light">Edited on <span class="message-edit-timestamp"></span></p>
                                         <p class="message-content is-size-6">Message</p>
                                         <div class="message-edit-tools">
-                                            <textarea class="message-edit-text" cols="60" rows="5" placeholder="Edit message"></textarea> <br>
-                                            <button class="message-edit-cancel">Cancel</button>
-                                            <button class="message-edit-confirm">Confirm</button>
+                                            <textarea class="message-edit-text textarea" placeholder="Edit message"></textarea>
+                                            <div class="my-1">
+                                                <button class="message-edit-cancel">Cancel</button>
+                                                <button class="message-edit-confirm">Confirm</button>
+                                            </div>
                                         </div>
                                         <div class="reacts">
                                             <button class="react-1 button  is-responsive">❤️: <span class="count-1">0</span></button>
@@ -187,8 +202,6 @@
                                             <button class="react-4 button  is-responsive">👍: <span class="count-4">0</span></button>
                                             <button class="react-5 button  is-responsive">💪: <span class="count-5">0</span></button> 
                                         </div>
-                                        
-                                        
                                     </div>
                                 </div>
                                 <div>

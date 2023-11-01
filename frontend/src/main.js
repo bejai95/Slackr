@@ -252,23 +252,12 @@ const createPageButton = (pageNumber) => {
     })
 }
 
-const createInviteButton = (userName, userId) => {
-    const newInviteButton = document.getElementById('invite-user-button-template').cloneNode('true');
-    newInviteButton.removeAttribute('id');
-    newInviteButton.innerText = userName;
-    document.getElementById('invite-user-buttons-container').appendChild(newInviteButton);
-    
-    newInviteButton.addEventListener('click', () => {
-        apiCall(`channel/${currentChannelId}/invite`, 'POST', true, {
-            "userId": userId
-        })
-        .then(() => {
-            loadChannel(currentChannelName, currentChannelId);
-        })
-        .catch((error) => {
-            showErrorModal(error);
-        })
-    })
+const createInviteCheckbox = (userName, userId) => {
+    const newInviteCheckbox = document.getElementById('invite-user-checkbox-template').cloneNode('true');
+    newInviteCheckbox.removeAttribute('id');
+    newInviteCheckbox.querySelector('.name').innerText = userName;
+    newInviteCheckbox.setAttribute("userId", userId);
+    document.getElementById('invite-user-checkbox-container').appendChild(newInviteCheckbox);
 }
 
 const loadChannel = (channelName, channelId) => {
@@ -278,10 +267,9 @@ const loadChannel = (channelName, channelId) => {
     document.getElementById('channel-title').innerText = channelName;
     document.getElementById('details-edit').classList.add('is-hidden');
     document.getElementById('details-non-edit').classList.remove('is-hidden');
-    document.getElementById('invite-users').classList.add('is-hidden');
-    document.getElementById('edit-channel-details').removeAttribute("disabled");
-    document.getElementById('confirm-edit-details').setAttribute("disabled", "");
-    document.getElementById('cancel-edit-details').setAttribute("disabled", "");
+    document.getElementById('edit-channel-details').classList.remove('is-hidden');
+    document.getElementById('confirm-edit-details').classList.add('is-hidden');
+    document.getElementById('cancel-edit-details').classList.add('is-hidden');
 
     currentChannelId = channelId;
     currentChannelName = channelName;
@@ -481,7 +469,7 @@ const getNameFromId = (id) => {
 const getUsersToInvite = () => {
      
     // Get rid of previously existing invite buttons from DOM
-    const container = document.getElementById('invite-user-buttons-container');
+    const container = document.getElementById('invite-user-checkbox-container');
     while(container.children.length > 1) {
         container.removeChild(container.lastChild);
     }
@@ -513,7 +501,7 @@ const getUsersToInvite = () => {
         });
 
         for (const nameandId of alphabeticallySortedData) {
-            createInviteButton(nameandId.name, nameandId.id);
+            createInviteCheckbox(nameandId.name, nameandId.id);
         }
     })
     .catch((error) => {
@@ -521,7 +509,7 @@ const getUsersToInvite = () => {
     })
 }
 
-// Now get all the users who are not in the channel
+// Get get all the users who are not in the current channel
 const getUsersNotInChannel = (allUsers) => {
     return new Promise((resolve, reject) => {
         let usersNotInChannel = [];
@@ -541,7 +529,6 @@ const getUsersNotInChannel = (allUsers) => {
         
     })
 }
-
 
 document.getElementById('login-link').addEventListener('click', () => showScreenFull('login'));
 document.getElementById('register-link').addEventListener('click', () => showScreenFull('register'));
@@ -698,9 +685,30 @@ document.getElementById('default-or-pinned').addEventListener('change', () => {
 })
 
 document.getElementById('show-invite-users').addEventListener('click', () => {
+    document.getElementById('invite-users').classList.add('is-active');
     getUsersToInvite(); 
-    document.getElementById('invite-users').classList.remove('is-hidden');
 });
+
+document.getElementById('hide-invite-users').addEventListener('click', () => {
+    document.getElementById('invite-users').classList.remove('is-active');
+})
+
+document.getElementById('invite-submit').addEventListener('click', () => {
+    for (const element of document.getElementById('invite-user-checkbox-container').children) {
+        if (element.querySelector('.checkbox').checked) {
+            apiCall(`channel/${currentChannelId}/invite`, 'POST', true, {
+                "userId": parseInt(element.getAttribute("userId")),
+            })
+            .then(() => {
+                document.getElementById('invite-users').classList.remove('is-active');
+                loadChannel(currentChannelName, currentChannelId);
+            })
+            .catch((error) => {
+                showErrorModal(error);
+            })
+        }
+    }
+})
 
 const editButton = document.getElementById('edit-channel-details');
 const cancelButton = document.getElementById('cancel-edit-details');
@@ -708,9 +716,9 @@ const confirmButton = document.getElementById('confirm-edit-details');
 const channelNameEdit = document.getElementById('channel-name-edit');
 const channelDescriptionEdit = document.getElementById('channel-description-edit'); 
 editButton.addEventListener('click', () => {
-    editButton.setAttribute("disabled", "");
-    cancelButton.removeAttribute("disabled");
-    confirmButton.removeAttribute("disabled");
+    editButton.classList.add('is-hidden');
+    cancelButton.classList.remove('is-hidden');
+    confirmButton.classList.remove('is-hidden');
     document.getElementById('details-non-edit').classList.add('is-hidden');
     document.getElementById('details-edit').classList.remove('is-hidden');
     document.getElementById('channel-name-edit').value = document.getElementById('channel-name-show').innerText;
@@ -718,9 +726,9 @@ editButton.addEventListener('click', () => {
 })
 
 cancelButton.addEventListener('click', () => {
-    editButton.removeAttribute("disabled");
-    cancelButton.setAttribute("disabled", "");
-    confirmButton.setAttribute("disabled", ""); 
+    editButton.classList.remove('is-hidden');
+    cancelButton.classList.add('is-hidden');
+    confirmButton.classList.add('is-hidden'); 
     document.getElementById('details-non-edit').classList.remove('is-hidden');
     document.getElementById('details-edit').classList.add('is-hidden');
 })
@@ -741,7 +749,6 @@ confirmButton.addEventListener('click', () => {
         showErrorModal(error);
     })
 })
-
 
 if (localStorage.getItem('token') === null) {
     showScreenFull('login');
